@@ -293,7 +293,10 @@
                 <input type="text" id="playerNameInput" placeholder="Your name" maxlength="15">
             </div>
 
-            <button id="playAgainBtn">Play Again</button>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button id="playAgainBtn">Play Again</button>
+                <button id="quitBtn" class="btn-secondary">Quit</button>
+            </div>
         </div>
     </div>
 
@@ -661,6 +664,10 @@
 
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('playAgainBtn').addEventListener('click', startGame);
+        document.getElementById('quitBtn').addEventListener('click', async () => {
+            await savePlayerScore();
+            window.location.href = '../index.html';
+        });
 
         document.getElementById('viewScoreboardBtn').addEventListener('click', () => {
             renderScoreboard();

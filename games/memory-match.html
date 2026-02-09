@@ -554,6 +554,7 @@
             <div class="modal-buttons">
                 <button class="play-again" id="playAgainBtn">Play Again</button>
                 <button class="new-setup" id="newSetupBtn">Change Settings</button>
+                <button class="new-setup" id="quitBtn">Quit</button>
             </div>
         </div>
     </div>
@@ -688,6 +689,11 @@
             document.getElementById('winModal').classList.remove('show');
             document.getElementById('gameScreen').classList.remove('active');
             document.getElementById('setupScreen').style.display = 'block';
+        });
+
+        document.getElementById('quitBtn').addEventListener('click', async () => {
+            await savePlayerScore();
+            window.location.href = '../index.html';
         });
 
         async function savePlayerScore() {
