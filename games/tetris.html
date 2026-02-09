@@ -14,14 +14,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 10px;
         }
 
         .header {
             display: flex;
             align-items: center;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
         }
 
         .back-btn {
@@ -42,7 +46,7 @@
 
         .game-container {
             display: flex;
-            gap: 30px;
+            gap: 15px;
             align-items: flex-start;
         }
 
@@ -50,70 +54,87 @@
             background: #0a0a15;
             border: 3px solid #e94560;
             border-radius: 10px;
-            padding: 5px;
+            padding: 3px;
         }
 
         #tetris { display: block; }
 
-        .side-panel { color: #fff; }
+        .side-panel {
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 8px;
+        }
 
         .info-box {
             background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            min-width: 150px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            min-width: 70px;
+            text-align: center;
         }
 
         .info-box h3 {
             color: #e94560;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
+            margin-bottom: 4px;
+            font-size: 0.7rem;
             text-transform: uppercase;
         }
 
-        .info-box p { font-size: 1.5rem; font-weight: bold; }
+        .info-box p { font-size: 1.2rem; font-weight: bold; }
+
+        .info-box.next-piece {
+            padding: 8px;
+        }
 
         #nextPiece { background: #0a0a15; border-radius: 5px; }
 
         .controls {
             background: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            font-size: 0.85rem;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
         }
 
         .controls h3 {
             color: #e94560;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
+            margin-bottom: 6px;
+            font-size: 0.7rem;
             text-transform: uppercase;
         }
 
-        .controls p { margin-bottom: 8px; color: #aaa; }
+        .controls p { margin-bottom: 3px; color: #aaa; }
         .controls span { color: #4ecca3; font-weight: bold; }
 
+        .button-row {
+            display: flex;
+            gap: 8px;
+        }
+
         button {
-            margin-top: 10px;
-            padding: 12px 30px;
-            font-size: 1rem;
+            padding: 8px 16px;
+            font-size: 0.85rem;
             background: linear-gradient(145deg, #e94560, #c73e54);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
+            flex: 1;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(233, 69, 96, 0.4);
+            box-shadow: 0 4px 8px rgba(233, 69, 96, 0.4);
         }
 
         button.btn-secondary {
             background: rgba(255, 255, 255, 0.2);
-            margin-top: 10px;
         }
 
         .modal {
@@ -233,48 +254,50 @@
         </div>
 
         <div class="side-panel">
-            <div class="info-box">
-                <h3>Score</h3>
-                <p id="score">0</p>
+            <div class="stats-row">
+                <div class="info-box">
+                    <h3>Score</h3>
+                    <p id="score">0</p>
+                </div>
+                <div class="info-box">
+                    <h3>Level</h3>
+                    <p id="level">1</p>
+                </div>
+                <div class="info-box">
+                    <h3>Lines</h3>
+                    <p id="lines">0</p>
+                </div>
             </div>
 
-            <div class="info-box">
-                <h3>Level</h3>
-                <p id="level">1</p>
+            <div class="stats-row">
+                <div class="info-box next-piece">
+                    <h3>Next</h3>
+                    <canvas id="nextPiece" width="60" height="60"></canvas>
+                </div>
+                <div class="controls">
+                    <h3>Controls</h3>
+                    <p><span>A/D</span> Move</p>
+                    <p><span>W</span> Rotate</p>
+                    <p><span>S</span> Drop</p>
+                    <p><span>Space</span> Hard Drop</p>
+                </div>
             </div>
 
-            <div class="info-box">
-                <h3>Lines</h3>
-                <p id="lines">0</p>
+            <div class="button-row">
+                <button id="startBtn">Start</button>
+                <button id="viewScoreboardBtn" class="btn-secondary">Scores</button>
             </div>
-
-            <div class="info-box">
-                <h3>Next</h3>
-                <canvas id="nextPiece" width="80" height="80"></canvas>
-            </div>
-
-            <div class="controls">
-                <h3>Controls</h3>
-                <p><span>←→</span> Move</p>
-                <p><span>↑</span> Rotate</p>
-                <p><span>↓</span> Soft Drop</p>
-                <p><span>Space</span> Hard Drop</p>
-                <p><span>P</span> Pause</p>
-            </div>
-
-            <button id="startBtn">Start Game</button>
-            <button id="viewScoreboardBtn" class="btn-secondary">Scoreboard</button>
         </div>
     </div>
 
     <div class="mobile-controls">
         <div class="mobile-row">
-            <button class="mobile-btn" id="rotateBtn">↻</button>
+            <button class="mobile-btn" id="rotateBtn">W</button>
         </div>
         <div class="mobile-row">
-            <button class="mobile-btn" id="leftBtn">←</button>
-            <button class="mobile-btn" id="downBtn">↓</button>
-            <button class="mobile-btn" id="rightBtn">→</button>
+            <button class="mobile-btn" id="leftBtn">A</button>
+            <button class="mobile-btn" id="downBtn">S</button>
+            <button class="mobile-btn" id="rightBtn">D</button>
         </div>
         <div class="mobile-row">
             <button class="mobile-btn" id="dropBtn" style="width: 140px;">Drop</button>
@@ -445,7 +468,7 @@
             for (let r = 0; r < nextPiece.length; r++) {
                 for (let c = 0; c < nextPiece[r].length; c++) {
                     if (nextPiece[r][c]) {
-                        drawBlock(nextCtx, offsetX + c, offsetY + r, COLORS[nextPiece[r][c]], 20);
+                        drawBlock(nextCtx, offsetX + c, offsetY + r, COLORS[nextPiece[r][c]], 15);
                     }
                 }
             }
@@ -642,14 +665,14 @@
             }
         }
 
-        // Event listeners
+        // Event listeners - WASD controls
         document.addEventListener('keydown', (e) => {
             if (isGameOver && e.code !== 'Enter') return;
             switch (e.code) {
-                case 'ArrowLeft': move(-1); break;
-                case 'ArrowRight': move(1); break;
-                case 'ArrowDown': drop(); score += 1; updateStats(); break;
-                case 'ArrowUp': rotate(); break;
+                case 'KeyA': move(-1); break;
+                case 'KeyD': move(1); break;
+                case 'KeyS': e.preventDefault(); drop(); score += 1; updateStats(); break;
+                case 'KeyW': rotate(); break;
                 case 'Space': e.preventDefault(); hardDrop(); break;
                 case 'KeyP': togglePause(); break;
                 case 'Enter': if (isGameOver) startGame(); break;
