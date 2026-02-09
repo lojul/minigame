@@ -3,11 +3,21 @@ const SUPABASE_URL = 'https://risydxsgttsbidgsjlbg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpc3lkeHNndHRzYmlkZ3NqbGJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MjE5NzIsImV4cCI6MjA4NjE5Nzk3Mn0.VOn63EjfKv9SvcyD9Xmumn5WIKqOQbFyGv_DrGkP5a0';
 
 // Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let supabase;
+try {
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (e) {
+    console.error('Failed to initialize Supabase:', e);
+}
 
 // Shared score functions
 async function getScoresFromDB(game, level = null) {
     try {
+        if (!supabase) {
+            console.warn('Supabase not initialized');
+            return [];
+        }
+
         let query = supabase
             .from('scores')
             .select('*')
@@ -28,13 +38,18 @@ async function getScoresFromDB(game, level = null) {
 
         return data || [];
     } catch (err) {
-        console.error('Error:', err);
+        console.error('Error fetching scores:', err);
         return [];
     }
 }
 
 async function addScoreToDB(game, playerName, score, level = null) {
     try {
+        if (!supabase) {
+            console.warn('Supabase not initialized, score not saved');
+            return false;
+        }
+
         const { data, error } = await supabase
             .from('scores')
             .insert([{
@@ -51,13 +66,18 @@ async function addScoreToDB(game, playerName, score, level = null) {
 
         return true;
     } catch (err) {
-        console.error('Error:', err);
+        console.error('Error saving score:', err);
         return false;
     }
 }
 
 async function isHighScoreInDB(game, score, level = null) {
     try {
+        if (!supabase) {
+            console.warn('Supabase not initialized, allowing score entry');
+            return true;
+        }
+
         const scores = await getScoresFromDB(game, level);
 
         if (scores.length < 10) return true;
@@ -70,7 +90,8 @@ async function isHighScoreInDB(game, score, level = null) {
         // For other games, higher is better
         return score > scores[scores.length - 1].score;
     } catch (err) {
-        console.error('Error:', err);
-        return false;
+        console.error('Error checking high score:', err);
+        // Return true on error so player can still enter their name
+        return true;
     }
 }
