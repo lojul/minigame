@@ -3,11 +3,16 @@ const SUPABASE_URL = 'https://risydxsgttsbidgsjlbg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpc3lkeHNndHRzYmlkZ3NqbGJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MjE5NzIsImV4cCI6MjA4NjE5Nzk3Mn0.VOn63EjfKv9SvcyD9Xmumn5WIKqOQbFyGv_DrGkP5a0';
 
 // Initialize Supabase client
-let supabase;
-try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch (e) {
-    console.error('Failed to initialize Supabase:', e);
+let supabase = null;
+if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function') {
+    try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        console.log('Supabase initialized successfully');
+    } catch (e) {
+        console.error('Failed to initialize Supabase:', e);
+    }
+} else {
+    console.warn('Supabase library not loaded');
 }
 
 // Shared score functions
