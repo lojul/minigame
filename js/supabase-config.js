@@ -55,6 +55,8 @@ async function addScoreToDB(game, playerName, score, level = null) {
             return false;
         }
 
+        console.log('Saving score:', { game, playerName, score, level });
+
         const { data, error } = await supabase
             .from('scores')
             .insert([{
@@ -69,6 +71,7 @@ async function addScoreToDB(game, playerName, score, level = null) {
             return false;
         }
 
+        console.log('Score saved successfully');
         return true;
     } catch (err) {
         console.error('Error saving score:', err);

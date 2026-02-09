@@ -31,7 +31,25 @@
         .subtitle {
             color: #e94560;
             font-size: 1.2rem;
-            margin-bottom: 50px;
+            margin-bottom: 30px;
+        }
+
+        .scoreboard-btn {
+            padding: 12px 30px;
+            background: linear-gradient(145deg, #4ecca3, #3db892);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 40px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .scoreboard-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(78, 204, 163, 0.4);
         }
 
         .games-grid {
@@ -98,6 +116,142 @@
             font-size: 0.9rem;
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            border: 2px solid #e94560;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #e94560;
+        }
+
+        .game-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        .tab-btn.active {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.3);
+        }
+
+        .level-tabs {
+            display: none;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .level-tabs.show { display: flex; }
+
+        .level-btn {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid transparent;
+            color: #aaa;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .level-btn:hover {
+            background: rgba(78, 204, 163, 0.2);
+        }
+
+        .level-btn.active {
+            border-color: #4ecca3;
+            background: rgba(78, 204, 163, 0.3);
+            color: #fff;
+        }
+
+        .scoreboard-list {
+            text-align: left;
+            margin: 15px 0;
+        }
+
+        .scoreboard-list h3 {
+            text-align: center;
+            color: #4ecca3;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 5px;
+            border-radius: 8px;
+        }
+
+        .score-entry .rank { color: #e94560; font-weight: bold; width: 30px; }
+        .score-entry .player-name { flex: 1; color: #fff; }
+        .score-entry .score-value { color: #4ecca3; font-weight: bold; }
+
+        .no-scores { color: #888; font-style: italic; padding: 20px; }
+
+        .close-btn {
+            margin-top: 20px;
+            padding: 10px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
         @media (max-width: 600px) {
             h1 {
                 font-size: 2rem;
@@ -112,6 +266,8 @@
 <body>
     <h1>Mini Games Arcade</h1>
     <p class="subtitle">Choose a game to play</p>
+
+    <button class="scoreboard-btn" id="viewScoresBtn">View All Scores</button>
 
     <div class="games-grid">
         <a href="games/memory-match.html" class="game-card">
@@ -139,5 +295,128 @@
     <footer>
         3 games available
     </footer>
+
+    <!-- Scoreboard Modal -->
+    <div class="modal" id="scoreboardModal">
+        <div class="modal-content">
+            <h2>Leaderboard</h2>
+
+            <div class="game-tabs">
+                <button class="tab-btn active" data-game="memory_match">Memory Match</button>
+                <button class="tab-btn" data-game="tetris">Tetris</button>
+                <button class="tab-btn" data-game="typing_defense">Typing Defense</button>
+            </div>
+
+            <div class="level-tabs" id="levelTabs">
+                <button class="level-btn active" data-level="easy">Easy</button>
+                <button class="level-btn" data-level="medium">Medium</button>
+                <button class="level-btn" data-level="hard">Hard</button>
+            </div>
+
+            <div class="scoreboard-list" id="scoreboardList">
+                <p class="no-scores">Loading...</p>
+            </div>
+
+            <button class="close-btn" id="closeScoreboardBtn">Close</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script>
+        let currentGame = 'memory_match';
+        let currentLevel = 'easy';
+
+        function formatTime(secs) {
+            const mins = Math.floor(secs / 60);
+            const s = secs % 60;
+            return `${mins}:${s.toString().padStart(2, '0')}`;
+        }
+
+        async function loadScoreboard() {
+            const container = document.getElementById('scoreboardList');
+            container.innerHTML = '<p class="no-scores">Loading...</p>';
+
+            if (typeof getScoresFromDB !== 'function') {
+                container.innerHTML = '<p class="no-scores">Scoreboard unavailable</p>';
+                return;
+            }
+
+            const level = currentGame === 'memory_match' ? currentLevel : null;
+            const scores = await getScoresFromDB(currentGame, level);
+
+            if (scores.length === 0) {
+                container.innerHTML = '<p class="no-scores">No scores yet. Be the first!</p>';
+                return;
+            }
+
+            const gameNames = {
+                'memory_match': 'Memory Match',
+                'tetris': 'Tetris',
+                'typing_defense': 'Typing Defense'
+            };
+
+            let title = gameNames[currentGame];
+            if (currentGame === 'memory_match') {
+                title += ' - ' + currentLevel.charAt(0).toUpperCase() + currentLevel.slice(1);
+            }
+
+            let html = `<h3>Top 10 - ${title}</h3>`;
+            scores.forEach((entry, index) => {
+                const scoreDisplay = currentGame === 'memory_match'
+                    ? formatTime(entry.score)
+                    : entry.score.toLocaleString();
+                html += `
+                    <div class="score-entry">
+                        <span class="rank">#${index + 1}</span>
+                        <span class="player-name">${entry.player_name}</span>
+                        <span class="score-value">${scoreDisplay}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // Game tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentGame = btn.dataset.game;
+
+                // Show/hide level tabs for Memory Match
+                const levelTabs = document.getElementById('levelTabs');
+                if (currentGame === 'memory_match') {
+                    levelTabs.classList.add('show');
+                } else {
+                    levelTabs.classList.remove('show');
+                }
+
+                loadScoreboard();
+            });
+        });
+
+        // Level tab buttons
+        document.querySelectorAll('.level-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLevel = btn.dataset.level;
+                loadScoreboard();
+            });
+        });
+
+        // Open scoreboard
+        document.getElementById('viewScoresBtn').addEventListener('click', () => {
+            document.getElementById('levelTabs').classList.add('show');
+            document.getElementById('scoreboardModal').classList.add('show');
+            loadScoreboard();
+        });
+
+        // Close scoreboard
+        document.getElementById('closeScoreboardBtn').addEventListener('click', () => {
+            document.getElementById('scoreboardModal').classList.remove('show');
+        });
+    </script>
 </body>
 </html>
