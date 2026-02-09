@@ -611,8 +611,13 @@
 
         async function renderScoreboard(level) {
             const container = document.getElementById('scoreboardList');
-            container.innerHTML = '<p class="no-scores">Loading...</p>';
 
+            if (typeof getScoresFromDB !== 'function') {
+                container.innerHTML = '<p class="no-scores">Scoreboard unavailable</p>';
+                return;
+            }
+
+            container.innerHTML = '<p class="no-scores">Loading...</p>';
             const levelScores = await getScoresFromDB('memory_match', level);
 
             if (levelScores.length === 0) {
@@ -689,7 +694,9 @@
             if (pendingScore && config.players === 1) {
                 const nameInput = document.getElementById('playerNameInput');
                 const name = nameInput.value.trim() || 'Anonymous';
-                await addScoreToDB('memory_match', name, pendingScore.time, pendingScore.level);
+                if (typeof addScoreToDB === 'function') {
+                    await addScoreToDB('memory_match', name, pendingScore.time, pendingScore.level);
+                }
                 pendingScore = null;
                 nameInput.value = '';
             }
@@ -858,20 +865,21 @@
                 winTitle.textContent = 'You Win!';
                 winTitle.className = '';
 
-                // Show name input immediately, then check if it's a high score
+                // Show name input immediately
                 nameSection.style.display = 'block';
                 pendingScore = { level: config.level, time: seconds };
 
-                // Check high score in background and hide if not qualified
-                isHighScoreInDB('memory_match', seconds, config.level).then(isHigh => {
-                    if (!isHigh) {
-                        nameSection.style.display = 'none';
-                        pendingScore = null;
-                    }
-                }).catch(err => {
-                    console.error('High score check failed:', err);
-                    // Keep showing name input on error
-                });
+                // Check high score in background (if Supabase loaded)
+                if (typeof isHighScoreInDB === 'function') {
+                    isHighScoreInDB('memory_match', seconds, config.level).then(isHigh => {
+                        if (!isHigh) {
+                            nameSection.style.display = 'none';
+                            pendingScore = null;
+                        }
+                    }).catch(err => {
+                        console.error('High score check failed:', err);
+                    });
+                }
             } else {
                 nameSection.style.display = 'none';
                 if (scores[1] > scores[2]) {

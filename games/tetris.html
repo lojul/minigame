@@ -348,8 +348,13 @@
 
         async function renderScoreboard() {
             const container = document.getElementById('scoreboardList');
-            container.innerHTML = '<p class="no-scores">Loading...</p>';
 
+            if (typeof getScoresFromDB !== 'function') {
+                container.innerHTML = '<p class="no-scores">Scoreboard unavailable</p>';
+                return;
+            }
+
+            container.innerHTML = '<p class="no-scores">Loading...</p>';
             const allScores = await getScoresFromDB('tetris');
 
             if (allScores.length === 0) {
@@ -374,7 +379,9 @@
             if (pendingScore) {
                 const nameInput = document.getElementById('playerNameInput');
                 const name = nameInput.value.trim() || 'Anonymous';
-                await addScoreToDB('tetris', name, pendingScore);
+                if (typeof addScoreToDB === 'function') {
+                    await addScoreToDB('tetris', name, pendingScore);
+                }
                 pendingScore = null;
                 nameInput.value = '';
             }
@@ -530,20 +537,21 @@
 
             const nameSection = document.getElementById('nameInputSection');
 
-            // Show name input immediately, then check if it's a high score
+            // Show name input immediately
             nameSection.style.display = 'block';
             pendingScore = score;
 
-            // Check high score in background and hide if not qualified
-            isHighScoreInDB('tetris', score).then(isHigh => {
-                if (!isHigh) {
-                    nameSection.style.display = 'none';
-                    pendingScore = null;
-                }
-            }).catch(err => {
-                console.error('High score check failed:', err);
-                // Keep showing name input on error
-            });
+            // Check high score in background (if Supabase loaded)
+            if (typeof isHighScoreInDB === 'function') {
+                isHighScoreInDB('tetris', score).then(isHigh => {
+                    if (!isHigh) {
+                        nameSection.style.display = 'none';
+                        pendingScore = null;
+                    }
+                }).catch(err => {
+                    console.error('High score check failed:', err);
+                });
+            }
 
             document.getElementById('gameOverModal').classList.add('show');
         }
