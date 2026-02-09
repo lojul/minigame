@@ -1060,7 +1060,7 @@
             setTimeout(() => effect.remove(), 1000);
         }
 
-        async function gameOver() {
+        function gameOver() {
             gameState.running = false;
             clearInterval(spawnLoop);
             cancelAnimationFrame(gameLoop);
@@ -1073,13 +1073,21 @@
             document.getElementById('finalWave').textContent = gameState.wave;
 
             const nameSection = document.getElementById('nameInputSection');
-            const isHigh = await isHighScoreInDB('typing_defense', gameState.score);
-            if (isHigh) {
-                nameSection.style.display = 'block';
-                pendingScore = gameState.score;
-            } else {
-                nameSection.style.display = 'none';
-            }
+
+            // Show name input immediately, then check if it's a high score
+            nameSection.style.display = 'block';
+            pendingScore = gameState.score;
+
+            // Check high score in background and hide if not qualified
+            isHighScoreInDB('typing_defense', gameState.score).then(isHigh => {
+                if (!isHigh) {
+                    nameSection.style.display = 'none';
+                    pendingScore = null;
+                }
+            }).catch(err => {
+                console.error('High score check failed:', err);
+                // Keep showing name input on error
+            });
 
             setTimeout(() => {
                 document.getElementById('gameOverModal').classList.add('show');

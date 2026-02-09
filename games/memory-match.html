@@ -843,7 +843,7 @@
             document.getElementById('time').textContent = formatTime(seconds);
         }
 
-        async function endGame() {
+        function endGame() {
             clearInterval(timerInterval);
             const timeStr = formatTime(seconds);
 
@@ -858,14 +858,20 @@
                 winTitle.textContent = 'You Win!';
                 winTitle.className = '';
 
-                // Check for high score
-                const isHigh = await isHighScoreInDB('memory_match', seconds, config.level);
-                if (isHigh) {
-                    nameSection.style.display = 'block';
-                    pendingScore = { level: config.level, time: seconds };
-                } else {
-                    nameSection.style.display = 'none';
-                }
+                // Show name input immediately, then check if it's a high score
+                nameSection.style.display = 'block';
+                pendingScore = { level: config.level, time: seconds };
+
+                // Check high score in background and hide if not qualified
+                isHighScoreInDB('memory_match', seconds, config.level).then(isHigh => {
+                    if (!isHigh) {
+                        nameSection.style.display = 'none';
+                        pendingScore = null;
+                    }
+                }).catch(err => {
+                    console.error('High score check failed:', err);
+                    // Keep showing name input on error
+                });
             } else {
                 nameSection.style.display = 'none';
                 if (scores[1] > scores[2]) {
