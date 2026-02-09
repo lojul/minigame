@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Games Arcade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .subtitle {
+            color: #e94560;
+            font-size: 1.2rem;
+            margin-bottom: 50px;
+        }
+
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        .game-card {
+            background: linear-gradient(145deg, #1f1f3a, #16213e);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            border-color: #e94560;
+            box-shadow: 0 20px 40px rgba(233, 69, 96, 0.2);
+        }
+
+        .game-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .game-card h2 {
+            color: #fff;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .game-card p {
+            color: #888;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .game-card .play-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: linear-gradient(145deg, #e94560, #c73e54);
+            color: white;
+            border-radius: 25px;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .game-card:hover .play-btn {
+            transform: scale(1.05);
+        }
+
+        footer {
+            margin-top: 60px;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .games-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Mini Games Arcade</h1>
+    <p class="subtitle">Choose a game to play</p>
+
+    <div class="games-grid">
+        <a href="games/memory-match.html" class="game-card">
+            <span class="game-icon">🎴</span>
+            <h2>Memory Match</h2>
+            <p>Flip cards to find matching pairs. Test your memory and try to match all pairs in the fewest moves!</p>
+            <span class="play-btn">Play Now</span>
+        </a>
+
+        <a href="games/tetris.html" class="game-card">
+            <span class="game-icon">🧱</span>
+            <h2>Tetris</h2>
+            <p>Classic falling blocks puzzle. Rotate and place pieces to complete lines and score points!</p>
+            <span class="play-btn">Play Now</span>
+        </a>
+
+        <a href="games/typing-defense.html" class="game-card">
+            <span class="game-icon">🏰</span>
+            <h2>Typing Defense</h2>
+            <p>Defend your castle by typing falling words! Type fast to destroy them before they hit your shelter.</p>
+            <span class="play-btn">Play Now</span>
+        </a>
+    </div>
+
+    <footer>
+        3 games available
+    </footer>
+</body>
+</html>

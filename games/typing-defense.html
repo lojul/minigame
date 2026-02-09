@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Defense - Mini Games Arcade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 10px;
+            z-index: 10;
+        }
+
+        .back-btn {
+            color: #e94560;
+            text-decoration: none;
+            font-size: 1.5rem;
+            padding: 10px 15px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        h1 {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+            z-index: 10;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .stat span {
+            color: #4ecca3;
+            font-weight: bold;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            background: linear-gradient(180deg, #0a0a15 0%, #1a1a2e 100%);
+            border: 3px solid #e94560;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .game-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 100px;
+        }
+
+        .word {
+            position: absolute;
+            padding: 8px 15px;
+            background: linear-gradient(145deg, #e94560, #c73e54);
+            color: white;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+            transition: transform 0.1s;
+            white-space: nowrap;
+        }
+
+        .word.active {
+            background: linear-gradient(145deg, #f59e0b, #d97706);
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(245, 158, 11, 0.6);
+        }
+
+        .word.destroying {
+            animation: destroy 0.3s ease-out forwards;
+        }
+
+        @keyframes destroy {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.5; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .castle-area {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(180deg, transparent, rgba(78, 204, 163, 0.15));
+            border-top: 3px solid rgba(78, 204, 163, 0.5);
+        }
+
+        .castle {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .wall-section {
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            position: relative;
+        }
+
+        .wall {
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(180deg, #4ecca3, #3db892);
+            border-radius: 3px 3px 0 0;
+            position: relative;
+        }
+
+        .wall::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 10px;
+            background: repeating-linear-gradient(
+                90deg,
+                #4ecca3 0px,
+                #4ecca3 15px,
+                #3db892 15px,
+                #3db892 20px
+            );
+            border-radius: 3px 3px 0 0;
+        }
+
+        .tower {
+            width: 40px;
+            height: 55px;
+            background: linear-gradient(180deg, #4ecca3, #3db892);
+            border-radius: 5px 5px 0 0;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .tower::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 22px solid transparent;
+            border-right: 22px solid transparent;
+            border-bottom: 12px solid #4ecca3;
+        }
+
+        .tower::after {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 18px;
+            background: #16213e;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .tower.main {
+            width: 60px;
+            height: 65px;
+        }
+
+        .tower.main::before {
+            border-left: 32px solid transparent;
+            border-right: 32px solid transparent;
+            border-bottom: 15px solid #4ecca3;
+            top: -15px;
+        }
+
+        .tower.main::after {
+            width: 16px;
+            height: 22px;
+            top: 18px;
+        }
+
+        .castle.damaged .wall,
+        .castle.damaged .tower {
+            background: linear-gradient(180deg, #f59e0b, #d97706);
+        }
+
+        .castle.damaged .wall::before {
+            background: repeating-linear-gradient(
+                90deg,
+                #f59e0b 0px,
+                #f59e0b 15px,
+                #d97706 15px,
+                #d97706 20px
+            );
+        }
+
+        .castle.damaged .tower::before {
+            border-bottom-color: #f59e0b;
+        }
+
+        .castle.critical .wall,
+        .castle.critical .tower {
+            background: linear-gradient(180deg, #e94560, #c73e54);
+            animation: shake 0.5s infinite;
+        }
+
+        .castle.critical .wall::before {
+            background: repeating-linear-gradient(
+                90deg,
+                #e94560 0px,
+                #e94560 15px,
+                #c73e54 15px,
+                #c73e54 20px
+            );
+        }
+
+        .castle.critical .tower::before {
+            border-bottom-color: #e94560;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-3px); }
+            75% { transform: translateX(3px); }
+        }
+
+        .health-bar-container {
+            position: absolute;
+            bottom: 75px;
+            left: 20px;
+            right: 20px;
+            height: 16px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #4ecca3;
+        }
+
+        .health-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4ecca3, #3db892);
+            transition: width 0.3s ease;
+        }
+
+        .health-bar.medium {
+            background: linear-gradient(90deg, #f59e0b, #d97706);
+        }
+
+        .health-bar.low {
+            background: linear-gradient(90deg, #e94560, #c73e54);
+        }
+
+        .input-area {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        #wordInput {
+            padding: 15px 25px;
+            font-size: 1.3rem;
+            border: 3px solid #e94560;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            outline: none;
+            width: 300px;
+            text-align: center;
+            transition: border-color 0.2s;
+        }
+
+        #wordInput:focus {
+            border-color: #4ecca3;
+        }
+
+        #wordInput::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .btn {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            background: linear-gradient(145deg, #e94560, #c73e54);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(233, 69, 96, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            border: 2px solid #e94560;
+            animation: popIn 0.3s ease;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #e94560;
+        }
+
+        .modal-content h2.victory {
+            color: #4ecca3;
+        }
+
+        .modal-content p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .modal-content .final-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .modal-content .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 25px;
+            border-radius: 10px;
+        }
+
+        .modal-content .stat-box .label {
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        .modal-content .stat-box .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4ecca3;
+        }
+
+        .start-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            z-index: 50;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .start-screen.hidden {
+            display: none;
+        }
+
+        .start-screen h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: #e94560;
+        }
+
+        .start-screen p {
+            margin-bottom: 8px;
+            color: #aaa;
+        }
+
+        .start-screen .instructions {
+            margin: 15px 0;
+            text-align: left;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 20px;
+            border-radius: 10px;
+        }
+
+        .start-screen .instructions li {
+            margin-bottom: 6px;
+            color: #ccc;
+            font-size: 0.95rem;
+        }
+
+        .setup-group {
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .setup-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .option-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .option-btn {
+            padding: 10px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid transparent;
+            color: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .option-btn:hover {
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        .option-btn.selected {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.3);
+        }
+
+        .combo-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background: rgba(245, 158, 11, 0.3);
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            color: #f59e0b;
+            font-weight: bold;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .combo-display.show {
+            opacity: 1;
+        }
+
+        .hit-effect {
+            position: absolute;
+            pointer-events: none;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4ecca3;
+            animation: floatUp 1s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-50px); }
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                height: 400px;
+            }
+
+            #wordInput {
+                width: 200px;
+                font-size: 1rem;
+                padding: 12px 15px;
+            }
+
+            .word {
+                font-size: 1rem;
+                padding: 6px 12px;
+            }
+
+            .option-btn {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-btn">←</a>
+        <h1>Typing Defense</h1>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat">Score: <span id="score">0</span></div>
+        <div class="stat">Wave: <span id="wave">1</span></div>
+        <div class="stat">WPM: <span id="wpm">0</span></div>
+    </div>
+
+    <div class="game-container" id="gameContainer">
+        <div class="game-area" id="gameArea"></div>
+
+        <div class="castle-area">
+            <div class="health-bar-container">
+                <div class="health-bar" id="healthBar"></div>
+            </div>
+            <div class="castle" id="castle">
+                <div class="tower"></div>
+                <div class="wall-section"><div class="wall"></div></div>
+                <div class="tower"></div>
+                <div class="wall-section"><div class="wall"></div></div>
+                <div class="tower main"></div>
+                <div class="wall-section"><div class="wall"></div></div>
+                <div class="tower"></div>
+                <div class="wall-section"><div class="wall"></div></div>
+                <div class="tower"></div>
+            </div>
+        </div>
+
+        <div class="combo-display" id="comboDisplay">Combo x1</div>
+
+        <div class="start-screen" id="startScreen">
+            <h2>Typing Defense</h2>
+            <p>Protect your castle from falling words!</p>
+
+            <ul class="instructions">
+                <li>Type the falling words to destroy them</li>
+                <li>Words that reach the castle deal damage</li>
+                <li>Build combos for bonus points</li>
+                <li>Survive as long as possible!</li>
+            </ul>
+
+            <div class="setup-group">
+                <label>Select Grade Level</label>
+                <div class="option-buttons">
+                    <button class="option-btn" data-grade="1">Grade 1</button>
+                    <button class="option-btn" data-grade="2">Grade 2</button>
+                    <button class="option-btn selected" data-grade="3">Grade 3</button>
+                    <button class="option-btn" data-grade="4">Grade 4</button>
+                    <button class="option-btn" data-grade="5">Grade 5</button>
+                    <button class="option-btn" data-grade="6">Grade 6</button>
+                </div>
+            </div>
+
+            <div class="setup-group">
+                <label>Select Speed</label>
+                <div class="option-buttons">
+                    <button class="option-btn selected" data-speed="easy">Easy</button>
+                    <button class="option-btn" data-speed="medium">Medium</button>
+                    <button class="option-btn" data-speed="hard">Hard</button>
+                </div>
+            </div>
+
+            <button class="btn" id="startBtn" style="margin-top: 15px;">Start Game</button>
+            <button class="btn btn-secondary" id="viewScoreboardBtn" style="margin-top: 10px; background: rgba(255,255,255,0.2);">View Scoreboard</button>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="wordInput" placeholder="Type here..." autocomplete="off" disabled>
+        <button class="btn" id="restartBtn">Restart</button>
+    </div>
+
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Game Over</h2>
+            <div class="final-stats">
+                <div class="stat-box">
+                    <div class="label">Final Score</div>
+                    <div class="value" id="finalScore">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Words Typed</div>
+                    <div class="value" id="finalWords">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="label">Best WPM</div>
+                    <div class="value" id="finalWpm">0</div>
+                </div>
+            </div>
+            <p>Wave Reached: <span id="finalWave">1</span></p>
+
+            <div class="name-input-section" id="nameInputSection" style="display: none; margin: 20px 0;">
+                <p style="color: #4ecca3; margin-bottom: 10px;">New High Score! Enter your name:</p>
+                <input type="text" id="playerNameInput" placeholder="Your name" maxlength="15" style="padding: 12px 20px; font-size: 1.1rem; border: 2px solid #e94560; border-radius: 10px; background: rgba(255,255,255,0.1); color: #fff; text-align: center; width: 200px;">
+            </div>
+
+            <button class="btn" id="playAgainBtn" style="margin-top: 20px;">Play Again</button>
+        </div>
+    </div>
+
+    <div class="modal" id="scoreboardModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2>Scoreboard</h2>
+            <div class="scoreboard-list" id="scoreboardList" style="text-align: left; margin: 20px 0;"></div>
+            <button class="btn" id="closeScoreboardBtn" style="background: rgba(255,255,255,0.2);">Close</button>
+        </div>
+    </div>
+
+    <style>
+        .score-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 5px;
+            border-radius: 8px;
+        }
+        .score-entry .rank { color: #e94560; font-weight: bold; width: 30px; }
+        .score-entry .player-name { flex: 1; color: #fff; }
+        .score-entry .score-value { color: #4ecca3; font-weight: bold; }
+        .scoreboard-list h3 { text-align: center; color: #e94560; margin-bottom: 15px; }
+        .no-scores { color: #888; font-style: italic; padding: 20px; text-align: center; }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script>
+        let pendingScore = null;
+
+        async function renderScoreboard() {
+            const container = document.getElementById('scoreboardList');
+            container.innerHTML = '<p class="no-scores">Loading...</p>';
+
+            const allScores = await getScoresFromDB('typing_defense');
+
+            if (allScores.length === 0) {
+                container.innerHTML = '<p class="no-scores">No scores yet. Be the first!</p>';
+                return;
+            }
+
+            let html = '<h3>Top 10 Scores</h3>';
+            allScores.forEach((entry, index) => {
+                html += `
+                    <div class="score-entry">
+                        <span class="rank">#${index + 1}</span>
+                        <span class="player-name">${entry.player_name}</span>
+                        <span class="score-value">${entry.score.toLocaleString()}</span>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        async function savePlayerScore() {
+            if (pendingScore) {
+                const nameInput = document.getElementById('playerNameInput');
+                const name = nameInput.value.trim() || 'Anonymous';
+                await addScoreToDB('typing_defense', name, pendingScore);
+                pendingScore = null;
+                nameInput.value = '';
+            }
+        }
+
+        // Words organized by school grade level
+        const WORDS_BY_GRADE = {
+            1: ['cat', 'dog', 'run', 'sun', 'hat', 'box', 'cup', 'pen', 'red', 'big',
+                'hot', 'sit', 'map', 'bat', 'fox', 'mom', 'dad', 'bed', 'bus', 'car',
+                'toy', 'ball', 'fish', 'bird', 'tree', 'book', 'door', 'hand', 'foot', 'eye'],
+            2: ['apple', 'water', 'happy', 'green', 'house', 'tiger', 'beach', 'cloud',
+                'dream', 'grape', 'lemon', 'plant', 'smile', 'table', 'chair', 'clock',
+                'bread', 'cheese', 'candy', 'honey', 'rabbit', 'turtle', 'monkey', 'garden'],
+            3: ['animal', 'basket', 'castle', 'dragon', 'engine', 'finger', 'golden',
+                'hammer', 'island', 'jungle', 'kitten', 'ladder', 'magnet', 'number',
+                'orange', 'pepper', 'queen', 'rocket', 'silver', 'tunnel', 'wonder'],
+            4: ['adventure', 'birthday', 'computer', 'daughter', 'elephant', 'favorite',
+                'grateful', 'hospital', 'important', 'keyboard', 'language', 'mountain',
+                'neighbor', 'opposite', 'practice', 'question', 'remember', 'sentence'],
+            5: ['absolutely', 'background', 'CalculAte', 'decoration', 'electricity',
+                'friendship', 'government', 'happiness', 'impossible', 'journalism',
+                'knowledge', 'literature', 'mathematics', 'navigation', 'observation'].map(w => w.toLowerCase()),
+            6: ['abbreviation', 'bibliography', 'circumstance', 'demonstration', 'encyclopedia',
+                'furthermore', 'geographical', 'hypothetical', 'illustration', 'justification',
+                'kaleidoscope', 'manufactured', 'nevertheless', 'opportunities', 'professional']
+        };
+
+        const SPEED_SETTINGS = {
+            easy: { speed: 1.0, spawnRate: 2200, damage: 8 },
+            medium: { speed: 1.5, spawnRate: 1800, damage: 12 },
+            hard: { speed: 2.0, spawnRate: 1400, damage: 18 }
+        };
+
+        let config = {
+            grade: 3,
+            speed: 'easy'
+        };
+
+        let gameState = {
+            running: false,
+            score: 0,
+            wave: 1,
+            health: 100,
+            words: [],
+            combo: 0,
+            maxCombo: 0,
+            wordsTyped: 0,
+            startTime: 0,
+            bestWpm: 0,
+            activeWord: null
+        };
+
+        let gameLoop;
+        let spawnLoop;
+
+        const gameArea = document.getElementById('gameArea');
+        const wordInput = document.getElementById('wordInput');
+        const healthBar = document.getElementById('healthBar');
+        const castle = document.getElementById('castle');
+        const comboDisplay = document.getElementById('comboDisplay');
+
+        // Grade selection
+        document.querySelectorAll('[data-grade]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-grade]').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                config.grade = parseInt(btn.dataset.grade);
+            });
+        });
+
+        // Speed selection
+        document.querySelectorAll('[data-speed]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-speed]').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                config.speed = btn.dataset.speed;
+            });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', restartGame);
+        document.getElementById('playAgainBtn').addEventListener('click', async () => {
+            await savePlayerScore();
+            restartGame();
+        });
+
+        document.getElementById('viewScoreboardBtn').addEventListener('click', () => {
+            renderScoreboard();
+            document.getElementById('scoreboardModal').classList.add('show');
+        });
+
+        document.getElementById('closeScoreboardBtn').addEventListener('click', () => {
+            document.getElementById('scoreboardModal').classList.remove('show');
+        });
+
+        wordInput.addEventListener('input', handleInput);
+
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            wordInput.disabled = false;
+            wordInput.focus();
+
+            gameState = {
+                running: true,
+                score: 0,
+                wave: 1,
+                health: 100,
+                words: [],
+                combo: 0,
+                maxCombo: 0,
+                wordsTyped: 0,
+                startTime: Date.now(),
+                bestWpm: 0,
+                activeWord: null
+            };
+
+            updateUI();
+            updateHealth();
+
+            const speedSettings = SPEED_SETTINGS[config.speed];
+            spawnLoop = setInterval(spawnWord, speedSettings.spawnRate);
+            gameLoop = requestAnimationFrame(update);
+
+            // Spawn first word immediately
+            spawnWord();
+        }
+
+        function restartGame() {
+            document.getElementById('gameOverModal').classList.remove('show');
+            document.getElementById('startScreen').classList.remove('hidden');
+            wordInput.value = '';
+            wordInput.disabled = true;
+            gameArea.innerHTML = '';
+
+            clearInterval(spawnLoop);
+            cancelAnimationFrame(gameLoop);
+        }
+
+        function spawnWord() {
+            if (!gameState.running) return;
+
+            const speedSettings = SPEED_SETTINGS[config.speed];
+            const wordList = WORDS_BY_GRADE[config.grade];
+            const word = wordList[Math.floor(Math.random() * wordList.length)];
+
+            const wordEl = document.createElement('div');
+            wordEl.className = 'word';
+            wordEl.textContent = word;
+
+            const maxX = gameArea.clientWidth - 150;
+            const x = Math.random() * maxX + 20;
+
+            wordEl.style.left = x + 'px';
+            wordEl.style.top = '-50px';
+
+            const wordObj = {
+                element: wordEl,
+                text: word,
+                x: x,
+                y: -50,
+                speed: speedSettings.speed * (0.8 + Math.random() * 0.4) * (1 + gameState.wave * 0.08)
+            };
+
+            gameState.words.push(wordObj);
+            gameArea.appendChild(wordEl);
+        }
+
+        function update() {
+            if (!gameState.running) return;
+
+            const areaHeight = gameArea.clientHeight;
+
+            for (let i = gameState.words.length - 1; i >= 0; i--) {
+                const word = gameState.words[i];
+                word.y += word.speed;
+                word.element.style.top = word.y + 'px';
+
+                // Check if word hit castle
+                if (word.y >= areaHeight - 20) {
+                    takeDamage(word);
+                    removeWord(i);
+                }
+            }
+
+            // Update WPM
+            const elapsed = (Date.now() - gameState.startTime) / 1000 / 60; // minutes
+            if (elapsed > 0) {
+                const wpm = Math.round(gameState.wordsTyped / elapsed);
+                document.getElementById('wpm').textContent = wpm;
+                if (wpm > gameState.bestWpm) {
+                    gameState.bestWpm = wpm;
+                }
+            }
+
+            // Wave progression
+            const newWave = Math.floor(gameState.score / 500) + 1;
+            if (newWave > gameState.wave) {
+                gameState.wave = newWave;
+                document.getElementById('wave').textContent = gameState.wave;
+
+                // Increase spawn rate
+                clearInterval(spawnLoop);
+                const baseRate = SPEED_SETTINGS[config.speed].spawnRate;
+                const newRate = Math.max(600, baseRate - (gameState.wave - 1) * 100);
+                spawnLoop = setInterval(spawnWord, newRate);
+            }
+
+            gameLoop = requestAnimationFrame(update);
+        }
+
+        function handleInput(e) {
+            const typed = e.target.value.toLowerCase().trim();
+
+            // Find matching word
+            let matchedWord = null;
+            let matchedIndex = -1;
+
+            for (let i = 0; i < gameState.words.length; i++) {
+                const word = gameState.words[i];
+
+                if (word.text.startsWith(typed)) {
+                    if (!gameState.activeWord || gameState.activeWord === word) {
+                        gameState.activeWord = word;
+                        word.element.classList.add('active');
+                    }
+                }
+
+                if (word.text === typed) {
+                    matchedWord = word;
+                    matchedIndex = i;
+                    break;
+                }
+            }
+
+            // Clear active state from non-matching words
+            gameState.words.forEach(w => {
+                if (w !== gameState.activeWord) {
+                    w.element.classList.remove('active');
+                }
+            });
+
+            if (matchedWord) {
+                destroyWord(matchedIndex);
+                wordInput.value = '';
+                gameState.activeWord = null;
+            }
+        }
+
+        function destroyWord(index) {
+            const word = gameState.words[index];
+
+            // Visual effect
+            word.element.classList.add('destroying');
+            word.element.classList.remove('active');
+
+            // Score calculation
+            gameState.combo++;
+            if (gameState.combo > gameState.maxCombo) {
+                gameState.maxCombo = gameState.combo;
+            }
+
+            const baseScore = word.text.length * 10;
+            const comboBonus = Math.min(gameState.combo, 10);
+            const points = baseScore * comboBonus;
+
+            gameState.score += points;
+            gameState.wordsTyped++;
+
+            // Show combo
+            if (gameState.combo > 1) {
+                comboDisplay.textContent = `Combo x${gameState.combo}`;
+                comboDisplay.classList.add('show');
+            }
+
+            // Hit effect
+            showHitEffect(word.element, `+${points}`);
+
+            updateUI();
+
+            setTimeout(() => {
+                word.element.remove();
+            }, 300);
+
+            gameState.words.splice(index, 1);
+        }
+
+        function removeWord(index) {
+            const word = gameState.words[index];
+            word.element.remove();
+            gameState.words.splice(index, 1);
+
+            // Reset combo
+            gameState.combo = 0;
+            comboDisplay.classList.remove('show');
+
+            // Clear active word if it was this one
+            if (gameState.activeWord === word) {
+                gameState.activeWord = null;
+            }
+        }
+
+        function takeDamage(word) {
+            const speedSettings = SPEED_SETTINGS[config.speed];
+            const damage = speedSettings.damage + Math.floor(word.text.length / 2);
+
+            gameState.health -= damage;
+            updateHealth();
+
+            // Screen shake
+            gameArea.parentElement.style.animation = 'none';
+            gameArea.parentElement.offsetHeight; // Trigger reflow
+            gameArea.parentElement.style.animation = 'shake 0.3s ease';
+
+            if (gameState.health <= 0) {
+                gameOver();
+            }
+        }
+
+        function updateHealth() {
+            const health = Math.max(0, gameState.health);
+            healthBar.style.width = health + '%';
+
+            healthBar.classList.remove('medium', 'low');
+            castle.classList.remove('damaged', 'critical');
+
+            if (health <= 30) {
+                healthBar.classList.add('low');
+                castle.classList.add('critical');
+            } else if (health <= 60) {
+                healthBar.classList.add('medium');
+                castle.classList.add('damaged');
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('wave').textContent = gameState.wave;
+        }
+
+        function showHitEffect(element, text) {
+            const effect = document.createElement('div');
+            effect.className = 'hit-effect';
+            effect.textContent = text;
+            effect.style.left = element.style.left;
+            effect.style.top = element.style.top;
+            gameArea.appendChild(effect);
+
+            setTimeout(() => effect.remove(), 1000);
+        }
+
+        async function gameOver() {
+            gameState.running = false;
+            clearInterval(spawnLoop);
+            cancelAnimationFrame(gameLoop);
+
+            wordInput.disabled = true;
+
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalWords').textContent = gameState.wordsTyped;
+            document.getElementById('finalWpm').textContent = gameState.bestWpm;
+            document.getElementById('finalWave').textContent = gameState.wave;
+
+            const nameSection = document.getElementById('nameInputSection');
+            const isHigh = await isHighScoreInDB('typing_defense', gameState.score);
+            if (isHigh) {
+                nameSection.style.display = 'block';
+                pendingScore = gameState.score;
+            } else {
+                nameSection.style.display = 'none';
+            }
+
+            setTimeout(() => {
+                document.getElementById('gameOverModal').classList.add('show');
+            }, 500);
+        }
+
+        // Add shake animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                20% { transform: translateX(-10px); }
+                40% { transform: translateX(10px); }
+                60% { transform: translateX(-10px); }
+                80% { transform: translateX(10px); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
