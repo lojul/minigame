@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Typing Defense - Mini Games Arcade</title>
     <style>
         * {
@@ -526,25 +526,45 @@
         }
 
         @media (max-width: 600px) {
+            body { padding: 10px; overflow-x: hidden; }
+            .header { margin-bottom: 5px; gap: 10px; }
+            h1 { font-size: 1.3rem; }
+            .stats-bar { gap: 10px; margin-bottom: 5px; }
+            .stat { padding: 5px 12px; font-size: 0.85rem; }
             .game-container {
-                height: 400px;
+                height: 350px;
+                max-width: 100%;
             }
-
+            .castle { height: 50px; }
+            .tower { width: 30px; height: 40px; }
+            .tower.main { width: 45px; height: 50px; }
+            .wall { height: 30px; }
+            .health-bar-container { bottom: 55px; height: 12px; }
             #wordInput {
-                width: 200px;
+                width: 180px;
                 font-size: 1rem;
-                padding: 12px 15px;
+                padding: 10px 12px;
             }
-
+            .input-area { margin-top: 10px; gap: 8px; }
+            .btn { padding: 10px 20px; font-size: 0.95rem; }
             .word {
-                font-size: 1rem;
-                padding: 6px 12px;
+                font-size: 0.9rem;
+                padding: 5px 10px;
             }
-
             .option-btn {
                 padding: 8px 12px;
-                font-size: 0.85rem;
+                font-size: 0.8rem;
             }
+            .start-screen { padding: 15px; }
+            .start-screen h2 { font-size: 1.5rem; }
+            .setup-group { margin: 10px 0; }
+        }
+
+        @media (max-width: 360px) {
+            .game-container { height: 300px; }
+            #wordInput { width: 150px; font-size: 0.9rem; }
+            .word { font-size: 0.8rem; padding: 4px 8px; }
+            .stat { padding: 4px 8px; font-size: 0.75rem; }
         }
     </style>
 </head>

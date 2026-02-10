@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tetris - Mini Games Arcade</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -217,28 +217,56 @@
 
         .mobile-controls {
             display: none;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 8px;
+            margin-top: 10px;
         }
 
         .mobile-btn {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
+            width: 70px;
+            height: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
             padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .mobile-row { display: flex; gap: 10px; justify-content: center; }
+        .mobile-row { display: flex; gap: 8px; justify-content: center; }
 
         @media (max-width: 600px) {
-            .game-container { flex-direction: column; align-items: center; }
-            .side-panel { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
-            .info-box { margin-bottom: 0; min-width: 100px; padding: 15px; }
+            body { padding: 5px; }
+            .header { margin-bottom: 5px; }
+            .header h1 { font-size: 1.2rem; }
+            .game-container { flex-direction: column; align-items: center; gap: 8px; }
+            .game-board { padding: 2px; border-width: 2px; }
+            #tetris { width: 180px; height: 300px; }
+            .side-panel {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+                width: 100%;
+            }
+            .stats-row { gap: 5px; }
+            .info-box {
+                padding: 6px 10px;
+                min-width: 55px;
+            }
+            .info-box h3 { font-size: 0.6rem; margin-bottom: 2px; }
+            .info-box p { font-size: 1rem; }
+            .info-box.next-piece { padding: 5px; }
+            #nextPiece { width: 45px; height: 45px; }
             .controls { display: none; }
+            .button-row { width: 100%; max-width: 200px; }
             .mobile-controls { display: flex; flex-direction: column; align-items: center; }
+        }
+
+        @media (max-width: 360px) {
+            #tetris { width: 150px; height: 250px; }
+            .mobile-btn { width: 60px; height: 45px; font-size: 1rem; }
         }
     </style>
 </head>
