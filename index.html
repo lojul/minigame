@@ -34,22 +34,39 @@
             margin-bottom: 30px;
         }
 
-        .scoreboard-btn {
-            padding: 12px 30px;
-            background: linear-gradient(145deg, #4ecca3, #3db892);
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 40px;
-            transition: transform 0.2s, box-shadow 0.2s;
+        .scores-section {
+            margin-top: 40px;
+            text-align: center;
         }
 
-        .scoreboard-btn:hover {
+        .scores-section h3 {
+            color: #4ecca3;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+        }
+
+        .score-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .score-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid #4ecca3;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .score-btn:hover {
+            background: rgba(78, 204, 163, 0.2);
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(78, 204, 163, 0.4);
+            box-shadow: 0 4px 12px rgba(78, 204, 163, 0.3);
         }
 
         .games-grid {
@@ -267,8 +284,6 @@
     <h1>Mini Games Arcade</h1>
     <p class="subtitle">Choose a game to play</p>
 
-    <button class="scoreboard-btn" id="viewScoresBtn">View All Scores</button>
-
     <div class="games-grid">
         <a href="games/memory-match.html" class="game-card">
             <span class="game-icon">🎴</span>
@@ -290,6 +305,15 @@
             <p>Defend your castle by typing falling words! Type fast to destroy them before they hit your shelter.</p>
             <span class="play-btn">Play Now</span>
         </a>
+    </div>
+
+    <div class="scores-section">
+        <h3>Leaderboards</h3>
+        <div class="score-buttons">
+            <button class="score-btn" data-game="memory_match">🎴 Memory Match</button>
+            <button class="score-btn" data-game="tetris">🧱 Tetris</button>
+            <button class="score-btn" data-game="typing_defense">🏰 Typing Defense</button>
+        </div>
     </div>
 
     <footer>
@@ -406,11 +430,26 @@
             });
         });
 
-        // Open scoreboard
-        document.getElementById('viewScoresBtn').addEventListener('click', () => {
-            document.getElementById('levelTabs').classList.add('show');
-            document.getElementById('scoreboardModal').classList.add('show');
-            loadScoreboard();
+        // Open scoreboard for specific game
+        document.querySelectorAll('.score-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentGame = btn.dataset.game;
+
+                // Update active tab
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector(`.tab-btn[data-game="${currentGame}"]`).classList.add('active');
+
+                // Show/hide level tabs for Memory Match
+                const levelTabs = document.getElementById('levelTabs');
+                if (currentGame === 'memory_match') {
+                    levelTabs.classList.add('show');
+                } else {
+                    levelTabs.classList.remove('show');
+                }
+
+                document.getElementById('scoreboardModal').classList.add('show');
+                loadScoreboard();
+            });
         });
 
         // Close scoreboard
