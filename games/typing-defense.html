@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#e94560">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
@@ -17,12 +17,14 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: max(10px, env(safe-area-inset-top)) 10px 0;
             overflow: hidden;
+            /* leave room for the fixed input bar */
+            padding-bottom: 70px;
         }
 
         .header {
@@ -75,7 +77,9 @@
             position: relative;
             width: 100%;
             max-width: 800px;
-            height: 500px;
+            /* Fill all remaining vertical space */
+            flex: 1;
+            min-height: 200px;
             background: linear-gradient(180deg, #0a0a15 0%, #1a1a2e 100%);
             border: 3px solid #e94560;
             border-radius: 15px;
@@ -295,10 +299,17 @@
         }
 
         .input-area {
-            margin-top: 15px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
             display: flex;
             gap: 10px;
-            z-index: 10;
+            z-index: 50;
+            padding: 10px 16px;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            background: rgba(16, 16, 36, 0.97);
+            border-top: 1px solid rgba(233, 69, 96, 0.3);
         }
 
         #wordInput {
@@ -529,26 +540,23 @@
         }
 
         @media (max-width: 600px) {
-            body { padding: 10px; overflow-x: hidden; }
+            body { padding: 8px 8px 70px; overflow-x: hidden; }
             .header { margin-bottom: 5px; gap: 10px; }
             h1 { font-size: 1.3rem; }
-            .stats-bar { gap: 10px; margin-bottom: 5px; }
-            .stat { padding: 5px 12px; font-size: 0.85rem; }
-            .game-container {
-                height: 350px;
-                max-width: 100%;
-            }
+            .stats-bar { gap: 8px; margin-bottom: 5px; }
+            .stat { padding: 5px 10px; font-size: 0.8rem; }
+            .game-container { max-width: 100%; }
             .castle { height: 50px; }
             .tower { width: 30px; height: 40px; }
             .tower.main { width: 45px; height: 50px; }
             .wall { height: 30px; }
             .health-bar-container { bottom: 55px; height: 12px; }
             #wordInput {
-                width: 180px;
+                width: 150px;
                 font-size: 1rem;
                 padding: 10px 12px;
             }
-            .input-area { margin-top: 10px; gap: 8px; }
+            .input-area { gap: 8px; }
             .btn { padding: 10px 20px; font-size: 0.95rem; }
             .word {
                 font-size: 0.9rem;
@@ -644,7 +652,9 @@
     </div>
 
     <div class="input-area">
-        <input type="text" id="wordInput" placeholder="Type here..." autocomplete="off" disabled>
+        <input type="text" id="wordInput" placeholder="Tap to type words..." autocomplete="off"
+               autocorrect="off" autocapitalize="none" spellcheck="false"
+               enterkeyhint="done" disabled>
         <button class="btn" id="restartBtn">Restart</button>
     </div>
 
@@ -861,10 +871,29 @@
 
         wordInput.addEventListener('input', handleInput);
 
+        // Keep game visible when iOS keyboard appears
+        function adjustForKeyboard() {
+            if (!window.visualViewport) return;
+            const vv = window.visualViewport;
+            const keyboardH = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+            // Shift the fixed input bar above the keyboard
+            document.querySelector('.input-area').style.bottom = keyboardH + 'px';
+            // Shrink body bottom padding to match
+            document.body.style.paddingBottom = (keyboardH + 60) + 'px';
+        }
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', adjustForKeyboard);
+            window.visualViewport.addEventListener('scroll', adjustForKeyboard);
+        }
+
+        const isMobile = navigator.maxTouchPoints > 0;
+
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
             wordInput.disabled = false;
-            wordInput.focus();
+            // On mobile, don't auto-focus — keyboard would cover the game.
+            // User taps the input field when ready to type.
+            if (!isMobile) wordInput.focus();
 
             gameState = {
                 running: true,

@@ -6,3 +6,4 @@ playwright-report/
 www/
 ios/
 android/
+.vercel
