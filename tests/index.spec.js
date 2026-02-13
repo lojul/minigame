@@ -13,10 +13,10 @@ test('home page loads with title', async ({ page }) => {
   await expect(page).toHaveTitle('Mini Games Arcade');
 });
 
-test('3 game cards are visible', async ({ page }) => {
+test('4 game cards are visible', async ({ page }) => {
   await page.goto('/');
   const cards = page.locator('.game-card');
-  await expect(cards).toHaveCount(3);
+  await expect(cards).toHaveCount(4);
 });
 
 test('Memory Match card is visible', async ({ page }) => {
@@ -32,6 +32,11 @@ test('Tetris card is visible', async ({ page }) => {
 test('Typing Defense card is visible', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('.game-card h2').filter({ hasText: 'Typing Defense' })).toBeVisible();
+});
+
+test('Table Tennis card is visible', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('.game-card h2').filter({ hasText: 'Table Tennis' })).toBeVisible();
 });
 
 test('scoreboard modal opens when a score button is clicked', async ({ page }) => {

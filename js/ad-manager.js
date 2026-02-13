@@ -42,10 +42,12 @@ const AdManager = (() => {
 
   async function loadAdMob() {
     try {
-      const { AdMob } = await import('@capacitor-community/admob');
+      // In a non-bundled Capacitor WebView, plugins are accessed via window.Capacitor.Plugins
+      const AdMob = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
+      if (!AdMob) throw new Error('AdMob plugin not found');
       _admob = AdMob;
       await AdMob.initialize({
-        testingDevices: [],
+        testingDevices: ['c2b2282538f4ed783e0e76cf1677e26c'],
         initializeForTesting: false,
       });
     } catch (e) {

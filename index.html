@@ -308,6 +308,13 @@
             <p>Defend your castle by typing falling words! Type fast to destroy them before they hit your shelter.</p>
             <span class="play-btn">Play Now</span>
         </a>
+
+        <a href="games/table-tennis.html" class="game-card">
+            <span class="game-icon">🏓</span>
+            <h2>Table Tennis</h2>
+            <p>Classic Pong-style table tennis! Play against the AI or challenge a friend. First to 7 wins!</p>
+            <span class="play-btn">Play Now</span>
+        </a>
     </div>
 
     <div class="scores-section">
@@ -316,13 +323,14 @@
             <button class="score-btn" data-game="memory_match">🎴 Memory Match</button>
             <button class="score-btn" data-game="tetris">🧱 Tetris</button>
             <button class="score-btn" data-game="typing_defense">🏰 Typing Defense</button>
+            <button class="score-btn" data-game="table_tennis">🏓 Table Tennis</button>
         </div>
     </div>
 
     <div id="banner-ad" style="width:100%;max-width:728px;margin:20px auto;min-height:90px;"></div>
 
     <footer>
-        3 games available
+        4 games available
     </footer>
 
     <!-- Scoreboard Modal -->
@@ -334,6 +342,7 @@
                 <button class="tab-btn active" data-game="memory_match">Memory Match</button>
                 <button class="tab-btn" data-game="tetris">Tetris</button>
                 <button class="tab-btn" data-game="typing_defense">Typing Defense</button>
+                <button class="tab-btn" data-game="table_tennis">Table Tennis</button>
             </div>
 
             <div class="level-tabs" id="levelTabs">
@@ -353,7 +362,14 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/ad-manager.js"></script>
-    <script>document.addEventListener('DOMContentLoaded', () => AdManager.init().then(() => AdManager.showBanner('banner-ad')));</script>
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        // Hide native splash screen as soon as web content is ready
+        if (window.Capacitor && window.Capacitor.Plugins.SplashScreen)
+          window.Capacitor.Plugins.SplashScreen.hide();
+        AdManager.init().then(() => AdManager.showBanner('banner-ad'));
+      });
+    </script>
     <script>
       if ('serviceWorker' in navigator)
         navigator.serviceWorker.register('/sw.js').catch(console.error);

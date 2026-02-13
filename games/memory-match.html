@@ -920,16 +920,41 @@
                     });
                 }
             } else {
-                nameSection.style.display = 'none';
                 if (scores[1] > scores[2]) {
                     winTitle.textContent = 'Player 1 Wins!';
                     winTitle.className = 'player1-wins';
+                    // Let the winner submit their time to the leaderboard
+                    const label = nameSection.querySelector('p');
+                    if (label) label.textContent = 'Player 1 — enter your name for the leaderboard:';
+                    nameSection.style.display = 'block';
+                    pendingScore = { level: config.level, time: seconds };
+                    if (typeof isHighScoreInDB === 'function') {
+                        isHighScoreInDB('memory_match', seconds, config.level).then(isHigh => {
+                            if (!isHigh) {
+                                nameSection.style.display = 'none';
+                                pendingScore = null;
+                            }
+                        }).catch(err => { console.error('High score check failed:', err); });
+                    }
                 } else if (scores[2] > scores[1]) {
                     winTitle.textContent = 'Player 2 Wins!';
                     winTitle.className = 'player2-wins';
+                    const label = nameSection.querySelector('p');
+                    if (label) label.textContent = 'Player 2 — enter your name for the leaderboard:';
+                    nameSection.style.display = 'block';
+                    pendingScore = { level: config.level, time: seconds };
+                    if (typeof isHighScoreInDB === 'function') {
+                        isHighScoreInDB('memory_match', seconds, config.level).then(isHigh => {
+                            if (!isHigh) {
+                                nameSection.style.display = 'none';
+                                pendingScore = null;
+                            }
+                        }).catch(err => { console.error('High score check failed:', err); });
+                    }
                 } else {
                     winTitle.textContent = "It's a Tie!";
                     winTitle.className = '';
+                    nameSection.style.display = 'none';
                 }
             }
 
