@@ -317,6 +317,7 @@
             <div class="button-row">
                 <button id="startBtn">Start</button>
                 <button id="viewScoreboardBtn" class="btn-secondary">Scores</button>
+                <button id="quitToMenuBtn" class="btn-secondary">Quit</button>
             </div>
         </div>
     </div>
@@ -741,6 +742,12 @@
 
         document.getElementById('closeScoreboardBtn').addEventListener('click', () => {
             document.getElementById('scoreboardModal').classList.remove('show');
+        });
+
+        document.getElementById('quitToMenuBtn').addEventListener('click', () => {
+            isGameOver = true;
+            clearInterval(dropInterval);
+            window.location.href = '../index.html';
         });
 
         // Initial draw

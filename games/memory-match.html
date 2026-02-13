@@ -550,7 +550,10 @@
 
         <div class="game-board cols-4" id="gameBoard"></div>
 
-        <button class="game-btn" id="newGameBtn">New Game</button>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <button class="game-btn" id="newGameBtn">New Game</button>
+            <button class="game-btn" id="quitToMenuBtn" style="background:rgba(255,255,255,0.15);">Quit</button>
+        </div>
     </div>
 
     <!-- Win Modal -->
@@ -692,6 +695,10 @@
 
         document.getElementById('startGameBtn').addEventListener('click', startGame);
         document.getElementById('newGameBtn').addEventListener('click', () => initGame());
+        document.getElementById('quitToMenuBtn').addEventListener('click', () => {
+            clearInterval(timerInterval);
+            window.location.href = '../index.html';
+        });
 
         document.getElementById('viewScoreboardBtn').addEventListener('click', () => {
             renderScoreboard('easy');

@@ -297,6 +297,7 @@
         </div>
 
         <canvas id="gameCanvas" width="480" height="320"></canvas>
+        <button id="quitToMenuBtn" style="margin-top:8px;padding:8px 20px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#aaa;border-radius:8px;cursor:pointer;font-size:0.85rem;">Quit to Menu</button>
 
         <div class="touch-hint">Touch left half to move your paddle · Touch right half for Player 2</div>
         <div class="game-info" id="gameInfo">Press Space or tap to serve</div>
@@ -727,6 +728,12 @@
             document.getElementById('gameOverModal').classList.remove('show');
             document.getElementById('gameScreen').classList.remove('active');
             document.getElementById('setupScreen').style.display = '';
+        });
+
+        document.getElementById('quitToMenuBtn').addEventListener('click', () => {
+            gameRunning = false;
+            cancelAnimationFrame(animId);
+            window.location.href = '../index.html';
         });
 
         // ─── Scoreboard ───────────────────────────────────────────────────────

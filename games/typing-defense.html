@@ -581,6 +581,7 @@
         <div class="stat">Score: <span id="score">0</span></div>
         <div class="stat">Wave: <span id="wave">1</span></div>
         <div class="stat">WPM: <span id="wpm">0</span></div>
+        <button id="quitToMenuBtn" class="btn" style="padding:6px 14px;font-size:0.8rem;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#aaa;border-radius:8px;cursor:pointer;">Quit</button>
     </div>
 
     <div class="game-container" id="gameContainer">
@@ -841,6 +842,11 @@
 
         document.getElementById('quitBtn').addEventListener('click', async () => {
             await savePlayerScore();
+            window.location.href = '../index.html';
+        });
+
+        document.getElementById('quitToMenuBtn').addEventListener('click', () => {
+            gameRunning = false;
             window.location.href = '../index.html';
         });
 
