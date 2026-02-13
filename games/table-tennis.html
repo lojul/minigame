@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#e94560">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
-    <title>Table Tennis - Mini Games Arcade</title>
+    <title>Paddle Battle - Mini Games Arcade</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -236,6 +236,63 @@
         .score-entry .score-value { color: #4ecca3; font-weight: bold; }
         .no-scores { color: #888; font-style: italic; padding: 20px; text-align: center; }
 
+        /* Controls Card */
+        .controls-card {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+        .controls-card .ctrl-title {
+            color: #4ecca3;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        .ctrl-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+        }
+        .ctrl-row:last-child { margin-bottom: 0; }
+        .ctrl-label {
+            color: #888;
+            width: 70px;
+            flex-shrink: 0;
+            font-size: 0.8rem;
+        }
+        .ctrl-keys {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+        .key {
+            display: inline-block;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-bottom: 2px solid rgba(255,255,255,0.15);
+            border-radius: 5px;
+            padding: 2px 7px;
+            font-size: 0.78rem;
+            color: #ddd;
+            font-family: monospace;
+        }
+        .ctrl-divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.07);
+            margin: 8px 0;
+        }
+        .ctrl-note {
+            color: #555;
+            font-size: 0.78rem;
+            margin-top: 6px;
+        }
+
         @media (max-width: 540px) {
             .header h1 { font-size: 1.2rem; }
             .player-score .pts { font-size: 1.8rem; }
@@ -245,7 +302,7 @@
 <body>
     <div class="header">
         <a href="../index.html" class="back-btn">←</a>
-        <h1>🏓 Table Tennis</h1>
+        <h1>🏓 Paddle Battle</h1>
     </div>
 
     <!-- Setup Screen -->
@@ -274,6 +331,59 @@
                 <button class="option-btn" data-pts="11">First to 11</button>
                 <button class="option-btn" data-pts="21">First to 21</button>
             </div>
+        </div>
+
+        <!-- Controls Reference -->
+        <div class="controls-card" id="controlsCard">
+            <div class="ctrl-title">Controls</div>
+
+            <!-- 1-player controls (shown by default) -->
+            <div id="ctrl1P">
+                <div class="ctrl-row">
+                    <span class="ctrl-label" style="color:#e94560;">You</span>
+                    <div class="ctrl-keys">
+                        <span class="key">W</span><span class="key">S</span>
+                        <span style="color:#555;font-size:0.8rem;">or</span>
+                        <span class="key">↑</span><span class="key">↓</span>
+                        <span style="color:#555;font-size:0.8rem;">move</span>
+                    </div>
+                </div>
+                <div class="ctrl-row">
+                    <span class="ctrl-label" style="color:#e94560;">Serve</span>
+                    <div class="ctrl-keys">
+                        <span class="key">Space</span>
+                        <span style="color:#555;font-size:0.8rem;">or click / tap</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2-player controls (hidden by default) -->
+            <div id="ctrl2P" style="display:none;">
+                <div class="ctrl-row">
+                    <span class="ctrl-label" style="color:#e94560;">P1 (left)</span>
+                    <div class="ctrl-keys">
+                        <span class="key">W</span><span class="key">S</span>
+                        <span style="color:#555;font-size:0.8rem;">or</span>
+                        <span class="key">↑</span><span class="key">↓</span>
+                    </div>
+                </div>
+                <hr class="ctrl-divider">
+                <div class="ctrl-row">
+                    <span class="ctrl-label" style="color:#4ecca3;">P2 (right)</span>
+                    <div class="ctrl-keys">
+                        <span class="key">I</span><span class="key">K</span>
+                    </div>
+                </div>
+                <div class="ctrl-row">
+                    <span class="ctrl-label" style="color:#888;">Serve</span>
+                    <div class="ctrl-keys">
+                        <span class="key">Space</span>
+                        <span style="color:#555;font-size:0.8rem;">or click / tap</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="ctrl-note">📱 On mobile: drag left half (P1) · drag right half (P2)</p>
         </div>
 
         <button class="start-btn" id="startBtn">Start Game</button>
@@ -385,6 +495,8 @@
                 config.players = parseInt(btn.dataset.players);
                 document.getElementById('difficultyGroup').style.display = config.players === 1 ? '' : 'none';
                 document.getElementById('p2Name').textContent = config.players === 1 ? 'AI' : 'Player 2';
+                document.getElementById('ctrl1P').style.display = config.players === 1 ? '' : 'none';
+                document.getElementById('ctrl2P').style.display = config.players === 2 ? '' : 'none';
             });
         });
 

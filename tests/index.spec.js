@@ -34,9 +34,9 @@ test('Typing Defense card is visible', async ({ page }) => {
   await expect(page.locator('.game-card h2').filter({ hasText: 'Typing Defense' })).toBeVisible();
 });
 
-test('Table Tennis card is visible', async ({ page }) => {
+test('Paddle Battle card is visible', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('.game-card h2').filter({ hasText: 'Table Tennis' })).toBeVisible();
+  await expect(page.locator('.game-card h2').filter({ hasText: 'Paddle Battle' })).toBeVisible();
 });
 
 test('scoreboard modal opens when a score button is clicked', async ({ page }) => {
