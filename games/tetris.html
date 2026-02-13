@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#e94560">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <title>Tetris - Mini Games Arcade</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -344,8 +347,9 @@
                 <input type="text" id="playerNameInput" placeholder="Your name" maxlength="15">
             </div>
 
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
                 <button id="playAgainBtn">Play Again</button>
+                <button id="watchAdBtn" class="btn-secondary">Watch Ad for Bonus</button>
                 <button id="quitBtn" class="btn-secondary">Quit</button>
             </div>
         </div>
@@ -361,6 +365,8 @@
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
+    <script src="../js/ad-manager.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => AdManager.init());</script>
     <script>
         const canvas = document.getElementById('tetris');
         const ctx = canvas.getContext('2d');
@@ -607,7 +613,9 @@
                 });
             }
 
-            document.getElementById('gameOverModal').classList.add('show');
+            AdManager.showInterstitial(() => {
+                document.getElementById('gameOverModal').classList.add('show');
+            });
         }
 
         function drop() {
@@ -715,6 +723,12 @@
 
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('playAgainBtn').addEventListener('click', startGame);
+        document.getElementById('watchAdBtn').addEventListener('click', () => {
+            AdManager.showRewarded(
+                () => { score += 500; document.getElementById('finalScore').textContent = score; },
+                () => {}
+            );
+        });
         document.getElementById('quitBtn').addEventListener('click', async () => {
             await savePlayerScore();
             window.location.href = '../index.html';
@@ -733,6 +747,10 @@
         createBoard();
         drawBoard();
         drawNextPiece();
+    </script>
+    <script>
+      if ('serviceWorker' in navigator)
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
     </script>
 </body>
 </html>

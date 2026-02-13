@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#e94560">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <title>Mini Games Arcade</title>
     <style>
         * {
@@ -316,6 +319,8 @@
         </div>
     </div>
 
+    <div id="banner-ad" style="width:100%;max-width:728px;margin:20px auto;min-height:90px;"></div>
+
     <footer>
         3 games available
     </footer>
@@ -347,6 +352,12 @@
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
+    <script src="js/ad-manager.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => AdManager.init().then(() => AdManager.showBanner('banner-ad')));</script>
+    <script>
+      if ('serviceWorker' in navigator)
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
+    </script>
     <script>
         let currentGame = 'memory_match';
         let currentLevel = 'easy';

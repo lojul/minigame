@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#e94560">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <title>Memory Match - Mini Games Arcade</title>
     <style>
         * {
@@ -573,6 +576,7 @@
 
             <div class="modal-buttons">
                 <button class="play-again" id="playAgainBtn">Play Again</button>
+                <button class="new-setup btn-secondary" id="watchAdBtn">Watch Ad for Bonus</button>
                 <button class="new-setup" id="newSetupBtn">Change Settings</button>
                 <button class="new-setup" id="quitBtn">Quit</button>
             </div>
@@ -602,6 +606,8 @@
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
+    <script src="../js/ad-manager.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => AdManager.init());</script>
     <script>
         const allEmojis = ['🎮', '🎲', '🎯', '🎪', '🎨', '🎭', '🎸', '🎺', '🎻', '🎹', '🎤', '🎧'];
 
@@ -702,6 +708,13 @@
             await savePlayerScore();
             document.getElementById('winModal').classList.remove('show');
             initGame();
+        });
+
+        document.getElementById('watchAdBtn').addEventListener('click', () => {
+            AdManager.showRewarded(
+                () => { /* bonus could be applied here */ },
+                () => {}
+            );
         });
 
         document.getElementById('newSetupBtn').addEventListener('click', async () => {
@@ -920,10 +933,16 @@
                 }
             }
 
-            setTimeout(() => {
-                document.getElementById('winModal').classList.add('show');
-            }, 500);
+            AdManager.showInterstitial(() => {
+                setTimeout(() => {
+                    document.getElementById('winModal').classList.add('show');
+                }, 500);
+            });
         }
+    </script>
+    <script>
+      if ('serviceWorker' in navigator)
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
     </script>
 </body>
 </html>
