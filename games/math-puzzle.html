@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#e94560">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <title>Math Crossword - Mini Games Arcade</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: max(20px, env(safe-area-inset-top)) 20px 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .back-btn {
+            color: #2e7d32;
+            text-decoration: none;
+            font-size: 1.5rem;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover { background: rgba(46, 125, 50, 0.2); }
+
+        h1 {
+            color: #1b5e20;
+            font-size: 1.6rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            color: #558b2f;
+            font-size: 0.95rem;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-weight: bold;
+        }
+
+        .stat.level {
+            background: linear-gradient(145deg, #7c4dff, #651fff);
+            color: white;
+        }
+
+        .stat.score {
+            background: white;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+
+        .stat.timer {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+            color: white;
+        }
+
+        .puzzle-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(5, 1fr);
+            gap: 8px;
+            width: 320px;
+            height: 320px;
+        }
+
+        .cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+        }
+
+        .cell.number {
+            background: white;
+            border: 3px solid #81c784;
+            color: #2e7d32;
+        }
+
+        .cell.input {
+            background: white;
+            border: 3px solid #bdbdbd;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cell.input:hover { border-color: #7c4dff; transform: scale(1.05); }
+        .cell.input.selected { border-color: #7c4dff; background: #ede7f6; }
+        .cell.input.correct { border-color: #4caf50; background: #e8f5e9; }
+        .cell.input.wrong { border-color: #f44336; background: #ffebee; animation: shake 0.3s; }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .cell.operator {
+            font-size: 1.5rem;
+            color: #666;
+            background: transparent;
+        }
+
+        .cell.equals {
+            font-size: 1.5rem;
+            color: #666;
+            background: transparent;
+        }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .num-btn {
+            width: 56px;
+            height: 56px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: linear-gradient(145deg, #81c784, #66bb6a);
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .num-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); }
+        .num-btn:active { transform: translateY(0); }
+
+        .num-btn.clear {
+            background: linear-gradient(145deg, #ef5350, #e53935);
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .btn.check {
+            background: linear-gradient(145deg, #66bb6a, #4caf50);
+            color: white;
+        }
+
+        .btn.next {
+            background: linear-gradient(145deg, #ffd54f, #ffca28);
+            color: #5d4037;
+        }
+
+        .btn.quit {
+            background: rgba(0, 0, 0, 0.1);
+            color: #666;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+        }
+
+        .modal-content .emoji { font-size: 3rem; margin-bottom: 10px; }
+
+        .modal-content p { color: #666; margin-bottom: 10px; }
+
+        .final-stats {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .final-stats p { margin: 5px 0; color: #333; }
+
+        .name-input {
+            margin: 15px 0;
+        }
+
+        .name-input input {
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #81c784;
+            border-radius: 10px;
+            width: 180px;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* Setup screen */
+        .setup-screen {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .setup-screen h2 {
+            color: #2e7d32;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .diff-btn {
+            padding: 15px;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f5f5f5;
+        }
+
+        .diff-btn:hover { background: #e8f5e9; }
+        .diff-btn.selected { border-color: #4caf50; background: #e8f5e9; }
+
+        .diff-btn .title { font-weight: bold; color: #2e7d32; }
+        .diff-btn .desc { font-size: 0.85rem; color: #666; margin-top: 5px; }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        @media (max-width: 400px) {
+            .puzzle-grid { width: 280px; height: 280px; }
+            .cell { width: 48px; height: 48px; font-size: 1.2rem; }
+            .num-btn { width: 48px; height: 48px; font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-btn">←</a>
+        <h1>Math Crossword</h1>
+    </div>
+
+    <!-- Setup Screen -->
+    <div class="screen setup-screen active" id="setupScreen">
+        <h2>🧮 Daily Math Challenge</h2>
+        <p style="color:#666;margin-bottom:20px;">Fill in the numbers so all equations work!</p>
+
+        <div class="difficulty-options">
+            <div class="diff-btn selected" data-diff="easy">
+                <div class="title">Easy</div>
+                <div class="desc">Numbers 1-10, simple addition</div>
+            </div>
+            <div class="diff-btn" data-diff="medium">
+                <div class="title">Medium</div>
+                <div class="desc">Numbers 1-15, more blanks</div>
+            </div>
+            <div class="diff-btn" data-diff="hard">
+                <div class="title">Hard</div>
+                <div class="desc">Numbers 1-20, most blanks</div>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn check" id="startBtn">Start Game</button>
+            <button class="btn quit" id="viewScoresBtn">Leaderboard</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="screen" id="gameScreen">
+        <p class="subtitle">Fill numbers so rows & columns add up!</p>
+
+        <div class="stats-bar">
+            <div class="stat level">Level: <span id="level">1</span>/20</div>
+            <div class="stat score">Score: <span id="score">0</span></div>
+            <div class="stat timer">Time: <span id="timer">0</span>s</div>
+        </div>
+
+        <div class="puzzle-container">
+            <div class="puzzle-grid" id="puzzleGrid"></div>
+        </div>
+
+        <div class="numpad" id="numpad"></div>
+
+        <div class="buttons">
+            <button class="btn check" id="checkBtn">Check Answer</button>
+            <button class="btn next" id="nextBtn" style="display:none;">Next Level</button>
+            <button class="btn quit" id="quitBtn">Quit</button>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="emoji" id="resultEmoji">🎉</div>
+            <h2 id="resultTitle">Game Complete!</h2>
+            <p id="resultMessage">Great job!</p>
+
+            <div class="final-stats">
+                <p>Final Score: <strong id="finalScore">0</strong></p>
+                <p>Levels Completed: <strong id="levelsCompleted">0</strong></p>
+                <p>Total Time: <strong id="totalTime">0</strong>s</p>
+            </div>
+
+            <div class="name-input" id="nameInput">
+                <p style="color:#4caf50;margin-bottom:10px;">Enter your name:</p>
+                <input type="text" id="playerName" placeholder="Your name" maxlength="15">
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn check" id="playAgainBtn">Play Again</button>
+                <button class="btn quit" id="menuBtn">Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scoreboard Modal -->
+    <div class="modal" id="scoreboardModal">
+        <div class="modal-content">
+            <h2>🏆 Leaderboard</h2>
+            <div id="scoreboardList" style="margin:15px 0;"></div>
+            <div class="modal-buttons">
+                <button class="btn quit" id="closeScoresBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/ad-manager.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => AdManager.init());</script>
+    <script>
+        let state = {
+            difficulty: 'easy',
+            level: 1,
+            score: 0,
+            time: 0,
+            totalTime: 0,
+            puzzle: null,
+            selectedCell: null,
+            timerInterval: null,
+            maxNum: 10,
+            blanksCount: 3
+        };
+
+        const DIFFICULTY = {
+            easy: { maxNum: 10, blanks: 3 },
+            medium: { maxNum: 15, blanks: 4 },
+            hard: { maxNum: 20, blanks: 5 }
+        };
+
+        // Generate puzzle
+        function generatePuzzle() {
+            const { maxNum, blanks } = DIFFICULTY[state.difficulty];
+            state.maxNum = maxNum;
+            state.blanksCount = blanks;
+
+            // Generate valid numbers for the grid
+            // Grid layout:
+            // A + B = C
+            // + + +
+            // D + E = F
+            // = = =
+            // G + H = I
+
+            let attempts = 0;
+            let puzzle;
+
+            while (attempts < 100) {
+                attempts++;
+
+                // Generate first row: A + B = C
+                const A = Math.floor(Math.random() * (maxNum - 2)) + 1;
+                const B = Math.floor(Math.random() * (maxNum - A - 1)) + 1;
+                const C = A + B;
+
+                // Generate second row considering column constraints
+                // D + E = F, and A + D = G
+                const D = Math.floor(Math.random() * (maxNum - 2)) + 1;
+                const E = Math.floor(Math.random() * (maxNum - D - 1)) + 1;
+                const F = D + E;
+
+                // Calculate third row from columns
+                const G = A + D;
+                const H = B + E;
+                const I = C + F;
+
+                // Check if all values are valid
+                if (G <= maxNum && H <= maxNum && I <= maxNum && G + H === I) {
+                    puzzle = {
+                        values: [A, B, C, D, E, F, G, H, I],
+                        blanks: []
+                    };
+                    break;
+                }
+            }
+
+            if (!puzzle) {
+                // Fallback simple puzzle
+                puzzle = {
+                    values: [2, 3, 5, 4, 1, 5, 6, 4, 10],
+                    blanks: []
+                };
+            }
+
+            // Randomly select cells to be blanks
+            const positions = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+            for (let i = positions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [positions[i], positions[j]] = [positions[j], positions[i]];
+            }
+            puzzle.blanks = positions.slice(0, blanks);
+            puzzle.userInputs = {};
+
+            return puzzle;
+        }
+
+        function renderPuzzle() {
+            const grid = document.getElementById('puzzleGrid');
+            grid.innerHTML = '';
+
+            const puzzle = state.puzzle;
+            const layout = [
+                [0, '+', 1, '=', 2],
+                ['+', '', '+', '', '+'],
+                [3, '+', 4, '=', 5],
+                ['=', '', '=', '', '='],
+                [6, '+', 7, '=', 8]
+            ];
+
+            layout.forEach((row, rowIdx) => {
+                row.forEach((cell, colIdx) => {
+                    const div = document.createElement('div');
+
+                    if (typeof cell === 'number') {
+                        const isBlank = puzzle.blanks.includes(cell);
+
+                        if (isBlank) {
+                            div.className = 'cell input';
+                            div.dataset.index = cell;
+                            div.textContent = puzzle.userInputs[cell] || '';
+                            div.addEventListener('click', () => selectCell(div, cell));
+                        } else {
+                            div.className = 'cell number';
+                            div.textContent = puzzle.values[cell];
+                        }
+                    } else if (cell === '+') {
+                        div.className = 'cell operator';
+                        div.textContent = '+';
+                    } else if (cell === '=') {
+                        div.className = 'cell equals';
+                        div.textContent = '=';
+                    } else {
+                        div.className = 'cell';
+                    }
+
+                    grid.appendChild(div);
+                });
+            });
+        }
+
+        function renderNumpad() {
+            const numpad = document.getElementById('numpad');
+            numpad.innerHTML = '';
+
+            const maxNum = Math.min(state.maxNum, 10);
+
+            for (let i = 1; i <= maxNum; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'num-btn';
+                btn.textContent = i;
+                btn.addEventListener('click', () => inputNumber(i));
+                numpad.appendChild(btn);
+            }
+
+            // Add clear button
+            const clearBtn = document.createElement('button');
+            clearBtn.className = 'num-btn clear';
+            clearBtn.textContent = '✕';
+            clearBtn.addEventListener('click', () => inputNumber(null));
+            numpad.appendChild(clearBtn);
+
+            // Add more numbers if needed
+            if (state.maxNum > 10) {
+                for (let i = 11; i <= state.maxNum; i++) {
+                    const btn = document.createElement('button');
+                    btn.className = 'num-btn';
+                    btn.textContent = i;
+                    btn.addEventListener('click', () => inputNumber(i));
+                    numpad.appendChild(btn);
+                }
+            }
+        }
+
+        function selectCell(div, index) {
+            document.querySelectorAll('.cell.input').forEach(c => c.classList.remove('selected'));
+            div.classList.add('selected');
+            state.selectedCell = index;
+        }
+
+        function inputNumber(num) {
+            if (state.selectedCell === null) return;
+
+            const puzzle = state.puzzle;
+            if (num === null) {
+                delete puzzle.userInputs[state.selectedCell];
+            } else {
+                puzzle.userInputs[state.selectedCell] = num;
+            }
+
+            renderPuzzle();
+
+            // Re-select the cell
+            const cell = document.querySelector(`.cell.input[data-index="${state.selectedCell}"]`);
+            if (cell) cell.classList.add('selected');
+        }
+
+        function checkAnswer() {
+            const puzzle = state.puzzle;
+
+            // Check if all blanks are filled
+            for (const idx of puzzle.blanks) {
+                if (!puzzle.userInputs[idx]) {
+                    alert('Please fill in all blank cells!');
+                    return false;
+                }
+            }
+
+            // Get all values (mix of given and user input)
+            const values = puzzle.values.map((v, i) =>
+                puzzle.blanks.includes(i) ? puzzle.userInputs[i] : v
+            );
+
+            // Check equations
+            const row1 = values[0] + values[1] === values[2];
+            const row2 = values[3] + values[4] === values[5];
+            const row3 = values[6] + values[7] === values[8];
+            const col1 = values[0] + values[3] === values[6];
+            const col2 = values[1] + values[4] === values[7];
+            const col3 = values[2] + values[5] === values[8];
+
+            const allCorrect = row1 && row2 && row3 && col1 && col2 && col3;
+
+            // Show feedback
+            document.querySelectorAll('.cell.input').forEach(cell => {
+                const idx = parseInt(cell.dataset.index);
+                const correct = puzzle.userInputs[idx] === puzzle.values[idx];
+                cell.classList.remove('correct', 'wrong');
+                cell.classList.add(correct ? 'correct' : 'wrong');
+            });
+
+            if (allCorrect) {
+                // Calculate score
+                const timeBonus = Math.max(0, 100 - state.time);
+                const levelBonus = state.level * 50;
+                state.score += timeBonus + levelBonus + 100;
+                state.totalTime += state.time;
+
+                document.getElementById('score').textContent = state.score;
+                document.getElementById('checkBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'inline-block';
+
+                clearInterval(state.timerInterval);
+            }
+
+            return allCorrect;
+        }
+
+        function nextLevel() {
+            state.level++;
+
+            if (state.level > 20) {
+                endGame(true);
+                return;
+            }
+
+            state.time = 0;
+            state.selectedCell = null;
+            state.puzzle = generatePuzzle();
+
+            document.getElementById('level').textContent = state.level;
+            document.getElementById('timer').textContent = '0';
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+
+            renderPuzzle();
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(state.timerInterval);
+            state.timerInterval = setInterval(() => {
+                state.time++;
+                document.getElementById('timer').textContent = state.time;
+            }, 1000);
+        }
+
+        function startGame() {
+            state.level = 1;
+            state.score = 0;
+            state.time = 0;
+            state.totalTime = 0;
+            state.selectedCell = null;
+            state.puzzle = generatePuzzle();
+
+            document.getElementById('setupScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+
+            document.getElementById('level').textContent = '1';
+            document.getElementById('score').textContent = '0';
+            document.getElementById('timer').textContent = '0';
+            document.getElementById('checkBtn').style.display = 'inline-block';
+            document.getElementById('nextBtn').style.display = 'none';
+
+            renderPuzzle();
+            renderNumpad();
+            startTimer();
+        }
+
+        function endGame(completed) {
+            clearInterval(state.timerInterval);
+
+            const modal = document.getElementById('resultModal');
+            const emoji = document.getElementById('resultEmoji');
+            const title = document.getElementById('resultTitle');
+            const message = document.getElementById('resultMessage');
+
+            document.getElementById('finalScore').textContent = state.score;
+            document.getElementById('levelsCompleted').textContent = state.level - 1;
+            document.getElementById('totalTime').textContent = state.totalTime;
+
+            if (completed) {
+                emoji.textContent = '🏆';
+                title.textContent = 'Congratulations!';
+                message.textContent = 'You completed all 20 levels!';
+                state.score += 500; // Completion bonus
+            } else {
+                emoji.textContent = '👍';
+                title.textContent = 'Game Over';
+                message.textContent = 'Great effort!';
+            }
+
+            AdManager.showInterstitial(() => {
+                setTimeout(() => modal.classList.add('show'), 300);
+            });
+        }
+
+        // Event listeners
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                state.difficulty = btn.dataset.diff;
+            });
+        });
+
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('checkBtn').addEventListener('click', checkAnswer);
+        document.getElementById('nextBtn').addEventListener('click', nextLevel);
+
+        document.getElementById('quitBtn').addEventListener('click', () => {
+            clearInterval(state.timerInterval);
+            endGame(false);
+        });
+
+        document.getElementById('playAgainBtn').addEventListener('click', async () => {
+            await saveScore();
+            document.getElementById('resultModal').classList.remove('show');
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('setupScreen').classList.add('active');
+        });
+
+        document.getElementById('menuBtn').addEventListener('click', async () => {
+            await saveScore();
+            window.location.href = '../index.html';
+        });
+
+        document.getElementById('viewScoresBtn').addEventListener('click', showScoreboard);
+        document.getElementById('closeScoresBtn').addEventListener('click', () => {
+            document.getElementById('scoreboardModal').classList.remove('show');
+        });
+
+        async function saveScore() {
+            if (state.score > 0 && typeof addScoreToDB === 'function') {
+                const name = document.getElementById('playerName').value.trim() || 'Anonymous';
+                await addScoreToDB('math_puzzle', name, state.score, state.difficulty);
+                document.getElementById('playerName').value = '';
+            }
+        }
+
+        async function showScoreboard() {
+            const container = document.getElementById('scoreboardList');
+            container.innerHTML = '<p style="color:#888;padding:20px;">Loading...</p>';
+            document.getElementById('scoreboardModal').classList.add('show');
+
+            if (typeof getScoresFromDB !== 'function') {
+                container.innerHTML = '<p style="color:#888;padding:20px;">Scoreboard unavailable</p>';
+                return;
+            }
+
+            const scores = await getScoresFromDB('math_puzzle');
+            if (scores.length === 0) {
+                container.innerHTML = '<p style="color:#888;padding:20px;">No scores yet!</p>';
+                return;
+            }
+
+            let html = '<div style="text-align:left;">';
+            scores.forEach((entry, i) => {
+                html += `<div style="display:flex;justify-content:space-between;padding:8px 10px;background:#f5f5f5;margin:3px 0;border-radius:5px;">
+                    <span style="color:#4caf50;font-weight:bold;width:25px;">#${i+1}</span>
+                    <span style="flex:1;color:#333;">${entry.player_name}</span>
+                    <span style="color:#2e7d32;font-weight:bold;">${entry.score.toLocaleString()}</span>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

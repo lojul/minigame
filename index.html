@@ -315,6 +315,20 @@
             <p>Classic Pong-style paddle game! Play against the AI or challenge a friend. First to 7 wins!</p>
             <span class="play-btn">Play Now</span>
         </a>
+
+        <a href="games/pokemon-battle.html" class="game-card">
+            <span class="game-icon">⚡🔥💧</span>
+            <h2>Pokemon Type Battle</h2>
+            <p>Battle trainers using type advantages! Fire beats Grass, Grass beats Water, Water beats Fire!</p>
+            <span class="play-btn">Play Now</span>
+        </a>
+
+        <a href="games/math-puzzle.html" class="game-card">
+            <span class="game-icon">🧮➕🔢</span>
+            <h2>Math Crossword</h2>
+            <p>Fill in the numbers so all equations work! Rows and columns must add up correctly.</p>
+            <span class="play-btn">Play Now</span>
+        </a>
     </div>
 
     <div class="scores-section">
@@ -324,13 +338,15 @@
             <button class="score-btn" data-game="tetris">🧱 Tetris</button>
             <button class="score-btn" data-game="typing_defense">🏰 Typing Defense</button>
             <button class="score-btn" data-game="table_tennis">🟥⚪🟩 Paddle Battle</button>
+            <button class="score-btn" data-game="pokemon_battle">⚡ Pokemon Battle</button>
+            <button class="score-btn" data-game="math_puzzle">🧮 Math Crossword</button>
         </div>
     </div>
 
     <div id="banner-ad" style="width:100%;max-width:728px;margin:20px auto;min-height:90px;"></div>
 
     <footer>
-        4 games available
+        6 games available
     </footer>
 
     <!-- Scoreboard Modal -->
@@ -343,6 +359,8 @@
                 <button class="tab-btn" data-game="tetris">Tetris</button>
                 <button class="tab-btn" data-game="typing_defense">Typing Defense</button>
                 <button class="tab-btn" data-game="table_tennis">Paddle Battle</button>
+                <button class="tab-btn" data-game="pokemon_battle">Pokemon Battle</button>
+                <button class="tab-btn" data-game="math_puzzle">Math Crossword</button>
             </div>
 
             <div class="level-tabs" id="levelTabs">
@@ -404,7 +422,10 @@
             const gameNames = {
                 'memory_match': 'Memory Match',
                 'tetris': 'Tetris',
-                'typing_defense': 'Typing Defense'
+                'typing_defense': 'Typing Defense',
+                'table_tennis': 'Paddle Battle',
+                'pokemon_battle': 'Pokemon Battle',
+                'math_puzzle': 'Math Crossword'
             };
 
             let title = gameNames[currentGame];
