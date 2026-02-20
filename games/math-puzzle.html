@@ -12,7 +12,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+            background: linear-gradient(135deg, #e0e5ec 0%, #d0d5dc 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -83,51 +83,45 @@
         }
 
         .puzzle-container {
-            background: rgba(255, 255, 255, 0.9);
+            background: linear-gradient(145deg, #d0d5dc, #e8edf4);
             border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             margin-bottom: 20px;
         }
 
         .puzzle-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 8px;
-            width: 320px;
-            height: 320px;
+            gap: 2px;
         }
 
         .cell {
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
             font-weight: bold;
             border-radius: 50%;
-            width: 56px;
-            height: 56px;
         }
 
         .cell.number {
             background: white;
-            border: 3px solid #81c784;
-            color: #2e7d32;
+            border: 3px solid #b0b8c0;
+            color: #333;
+            box-shadow: inset 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .cell.input {
-            background: white;
-            border: 3px solid #bdbdbd;
+            background: linear-gradient(145deg, #e8f5f0, #d0ebe5);
+            border: 3px solid #80cbc4;
             color: #333;
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .cell.input:hover { border-color: #7c4dff; transform: scale(1.05); }
-        .cell.input.selected { border-color: #7c4dff; background: #ede7f6; }
-        .cell.input.correct { border-color: #4caf50; background: #e8f5e9; }
-        .cell.input.wrong { border-color: #f44336; background: #ffebee; animation: shake 0.3s; }
+        .cell.input:hover { border-color: #26a69a; transform: scale(1.05); }
+        .cell.input.selected { border-color: #00897b; background: #b2dfdb; box-shadow: 0 0 10px rgba(0,150,136,0.5); }
+        .cell.input.correct { border-color: #4caf50; background: #c8e6c9; }
+        .cell.input.wrong { border-color: #f44336; background: #ffcdd2; animation: shake 0.3s; }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -136,14 +130,18 @@
         }
 
         .cell.operator {
-            font-size: 1.5rem;
-            color: #666;
+            color: #444;
             background: transparent;
+            font-weight: bold;
         }
 
         .cell.equals {
-            font-size: 1.5rem;
-            color: #666;
+            color: #444;
+            background: transparent;
+            font-weight: bold;
+        }
+
+        .cell.empty {
             background: transparent;
         }
 
@@ -152,6 +150,7 @@
             grid-template-columns: repeat(5, 1fr);
             gap: 8px;
             margin-bottom: 20px;
+            max-width: 350px;
         }
 
         .num-btn {
@@ -311,8 +310,7 @@
         .screen.active { display: block; }
 
         @media (max-width: 400px) {
-            .puzzle-grid { width: 280px; height: 280px; }
-            .cell { width: 48px; height: 48px; font-size: 1.2rem; }
+            .puzzle-container { padding: 10px; }
             .num-btn { width: 48px; height: 48px; font-size: 1.2rem; }
         }
     </style>
@@ -325,21 +323,21 @@
 
     <!-- Setup Screen -->
     <div class="screen setup-screen active" id="setupScreen">
-        <h2>🧮 Daily Math Challenge</h2>
-        <p style="color:#666;margin-bottom:20px;">Fill in the numbers so all equations work!</p>
+        <h2>🧮 Math Crossword</h2>
+        <p style="color:#666;margin-bottom:20px;">Fill in the blanks so all equations work horizontally and vertically!</p>
 
         <div class="difficulty-options">
             <div class="diff-btn selected" data-diff="easy">
                 <div class="title">Easy</div>
-                <div class="desc">Numbers 1-10, simple addition</div>
+                <div class="desc">3×3 grid, + and - only</div>
             </div>
             <div class="diff-btn" data-diff="medium">
                 <div class="title">Medium</div>
-                <div class="desc">Numbers 1-15, more blanks</div>
+                <div class="desc">4×4 grid, + - × operations</div>
             </div>
             <div class="diff-btn" data-diff="hard">
                 <div class="title">Hard</div>
-                <div class="desc">Numbers 1-20, most blanks</div>
+                <div class="desc">5×5 grid, all operations, more blanks</div>
             </div>
         </div>
 
@@ -351,10 +349,10 @@
 
     <!-- Game Screen -->
     <div class="screen" id="gameScreen">
-        <p class="subtitle">Fill numbers so rows & columns add up!</p>
+        <p class="subtitle" id="subtitleText">Fill numbers so equations work!</p>
 
         <div class="stats-bar">
-            <div class="stat level">Level: <span id="level">1</span>/20</div>
+            <div class="stat level">Level: <span id="level">1</span>/10</div>
             <div class="stat score">Score: <span id="score">0</span></div>
             <div class="stat timer">Time: <span id="timer">0</span>s</div>
         </div>
@@ -422,163 +420,386 @@
             puzzle: null,
             selectedCell: null,
             timerInterval: null,
-            maxNum: 10,
+            gridSize: 3,
             blanksCount: 3
         };
 
         const DIFFICULTY = {
-            easy: { maxNum: 10, blanks: 3 },
-            medium: { maxNum: 15, blanks: 4 },
-            hard: { maxNum: 20, blanks: 5 }
+            easy: { gridSize: 3, blanks: 3, ops: ['+', '-'], maxNum: 15 },
+            medium: { gridSize: 4, blanks: 5, ops: ['+', '-', '×'], maxNum: 20 },
+            hard: { gridSize: 5, blanks: 7, ops: ['+', '-', '×'], maxNum: 30 }
         };
 
-        // Generate puzzle
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function applyOp(a, op, b) {
+            if (op === '+') return a + b;
+            if (op === '-') return a - b;
+            if (op === '×') return a * b;
+            return 0;
+        }
+
         function generatePuzzle() {
-            const { maxNum, blanks } = DIFFICULTY[state.difficulty];
-            state.maxNum = maxNum;
+            const config = DIFFICULTY[state.difficulty];
+            const { gridSize, blanks, ops, maxNum } = config;
+            state.gridSize = gridSize;
             state.blanksCount = blanks;
 
-            // Generate valid numbers for the grid
-            // Grid layout:
-            // A + B = C
-            // + + +
-            // D + E = F
-            // = = =
-            // G + H = I
-
+            let puzzle = null;
             let attempts = 0;
-            let puzzle;
 
-            while (attempts < 100) {
+            while (attempts < 500 && !puzzle) {
                 attempts++;
-
-                // Generate first row: A + B = C
-                const A = Math.floor(Math.random() * (maxNum - 2)) + 1;
-                const B = Math.floor(Math.random() * (maxNum - A - 1)) + 1;
-                const C = A + B;
-
-                // Generate second row considering column constraints
-                // D + E = F, and A + D = G
-                const D = Math.floor(Math.random() * (maxNum - 2)) + 1;
-                const E = Math.floor(Math.random() * (maxNum - D - 1)) + 1;
-                const F = D + E;
-
-                // Calculate third row from columns
-                const G = A + D;
-                const H = B + E;
-                const I = C + F;
-
-                // Check if all values are valid
-                if (G <= maxNum && H <= maxNum && I <= maxNum && G + H === I) {
-                    puzzle = {
-                        values: [A, B, C, D, E, F, G, H, I],
-                        blanks: []
-                    };
-                    break;
-                }
+                puzzle = tryGeneratePuzzle(gridSize, ops, maxNum);
             }
 
             if (!puzzle) {
                 // Fallback simple puzzle
-                puzzle = {
-                    values: [2, 3, 5, 4, 1, 5, 6, 4, 10],
-                    blanks: []
-                };
+                puzzle = createFallbackPuzzle(gridSize);
             }
 
-            // Randomly select cells to be blanks
-            const positions = [0, 1, 2, 3, 4, 5, 6, 7, 8];
-            for (let i = positions.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [positions[i], positions[j]] = [positions[j], positions[i]];
+            // Select blanks
+            const allPositions = [];
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    allPositions.push({ r, c });
+                }
             }
-            puzzle.blanks = positions.slice(0, blanks);
+            shuffle(allPositions);
+            puzzle.blanks = allPositions.slice(0, blanks).map(p => `${p.r},${p.c}`);
             puzzle.userInputs = {};
 
             return puzzle;
         }
 
+        function tryGeneratePuzzle(size, availableOps, maxNum) {
+            // Generate a valid grid where:
+            // - Each row forms an equation: a op b op c ... = result
+            // - Each column forms an equation: a op b op c ... = result
+
+            const grid = [];
+            const rowOps = [];
+            const colOps = [];
+
+            // For simplicity, we'll generate values that work for both directions
+            // Strategy: Generate random values, then calculate results
+
+            // Initialize grid with random small numbers
+            for (let r = 0; r < size; r++) {
+                grid[r] = [];
+                for (let c = 0; c < size; c++) {
+                    if (availableOps.includes('×')) {
+                        grid[r][c] = randInt(1, Math.min(9, maxNum));
+                    } else {
+                        grid[r][c] = randInt(1, Math.min(15, maxNum));
+                    }
+                }
+            }
+
+            // Generate operators for rows
+            for (let r = 0; r < size; r++) {
+                rowOps[r] = [];
+                for (let c = 0; c < size - 1; c++) {
+                    rowOps[r][c] = availableOps[randInt(0, availableOps.length - 1)];
+                }
+            }
+
+            // Generate operators for columns
+            for (let c = 0; c < size; c++) {
+                colOps[c] = [];
+                for (let r = 0; r < size - 1; r++) {
+                    colOps[c][r] = availableOps[randInt(0, availableOps.length - 1)];
+                }
+            }
+
+            // Calculate row results
+            const rowResults = [];
+            for (let r = 0; r < size; r++) {
+                let result = grid[r][0];
+                for (let c = 1; c < size; c++) {
+                    result = applyOp(result, rowOps[r][c-1], grid[r][c]);
+                }
+                rowResults[r] = result;
+            }
+
+            // Calculate column results
+            const colResults = [];
+            for (let c = 0; c < size; c++) {
+                let result = grid[0][c];
+                for (let r = 1; r < size; r++) {
+                    result = applyOp(result, colOps[c][r-1], grid[r][c]);
+                }
+                colResults[c] = result;
+            }
+
+            // Validate all results are positive integers within range
+            for (let i = 0; i < size; i++) {
+                if (rowResults[i] < 0 || rowResults[i] > maxNum * 3 || !Number.isInteger(rowResults[i])) {
+                    return null;
+                }
+                if (colResults[i] < 0 || colResults[i] > maxNum * 3 || !Number.isInteger(colResults[i])) {
+                    return null;
+                }
+            }
+
+            // Also validate all grid values
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size; c++) {
+                    if (grid[r][c] < 0 || grid[r][c] > maxNum) {
+                        return null;
+                    }
+                }
+            }
+
+            return {
+                grid,
+                rowOps,
+                colOps,
+                rowResults,
+                colResults,
+                size
+            };
+        }
+
+        function createFallbackPuzzle(size) {
+            // Create a simple addition-only puzzle
+            const grid = [];
+            const rowOps = [];
+            const colOps = [];
+            const rowResults = [];
+            const colResults = [];
+
+            for (let r = 0; r < size; r++) {
+                grid[r] = [];
+                rowOps[r] = [];
+                for (let c = 0; c < size; c++) {
+                    grid[r][c] = r + c + 1;
+                    if (c < size - 1) rowOps[r][c] = '+';
+                }
+            }
+
+            for (let c = 0; c < size; c++) {
+                colOps[c] = [];
+                for (let r = 0; r < size - 1; r++) {
+                    colOps[c][r] = '+';
+                }
+            }
+
+            // Calculate results
+            for (let r = 0; r < size; r++) {
+                let result = grid[r][0];
+                for (let c = 1; c < size; c++) {
+                    result = applyOp(result, rowOps[r][c-1], grid[r][c]);
+                }
+                rowResults[r] = result;
+            }
+
+            for (let c = 0; c < size; c++) {
+                let result = grid[0][c];
+                for (let r = 1; r < size; r++) {
+                    result = applyOp(result, colOps[c][r-1], grid[r][c]);
+                }
+                colResults[c] = result;
+            }
+
+            return { grid, rowOps, colOps, rowResults, colResults, size };
+        }
+
         function renderPuzzle() {
-            const grid = document.getElementById('puzzleGrid');
-            grid.innerHTML = '';
-
+            const gridEl = document.getElementById('puzzleGrid');
             const puzzle = state.puzzle;
-            const layout = [
-                [0, '+', 1, '=', 2],
-                ['+', '', '+', '', '+'],
-                [3, '+', 4, '=', 5],
-                ['=', '', '=', '', '='],
-                [6, '+', 7, '=', 8]
-            ];
+            const size = puzzle.size;
 
-            layout.forEach((row, rowIdx) => {
-                row.forEach((cell, colIdx) => {
+            // Grid has: size number columns + (size-1) operator columns + 1 equals column + 1 result column
+            // = size + (size-1) + 1 + 1 = 2*size + 1
+            const cols = size * 2 + 1;
+            const rows = size * 2 + 1;
+
+            // Calculate cell size based on grid size
+            const baseCellSize = state.difficulty === 'easy' ? 50 : (state.difficulty === 'medium' ? 42 : 36);
+            const cellSize = baseCellSize;
+            const opSize = Math.floor(cellSize * 0.6);
+
+            gridEl.style.gridTemplateColumns = generateGridTemplate(size, cellSize, opSize);
+            gridEl.style.gridTemplateRows = generateGridTemplate(size, cellSize, opSize);
+            gridEl.innerHTML = '';
+
+            for (let row = 0; row < rows; row++) {
+                for (let col = 0; col < cols; col++) {
                     const div = document.createElement('div');
 
-                    if (typeof cell === 'number') {
-                        const isBlank = puzzle.blanks.includes(cell);
+                    const isNumberRow = row % 2 === 0;
+                    const isNumberCol = col % 2 === 0;
+                    const gridRow = Math.floor(row / 2);
+                    const gridCol = Math.floor(col / 2);
 
-                        if (isBlank) {
-                            div.className = 'cell input';
-                            div.dataset.index = cell;
-                            div.textContent = puzzle.userInputs[cell] || '';
-                            div.addEventListener('click', () => selectCell(div, cell));
-                        } else {
+                    if (isNumberRow && isNumberCol) {
+                        // Number cell
+                        if (gridCol < size && gridRow < size) {
+                            // Main grid number
+                            const key = `${gridRow},${gridCol}`;
+                            const isBlank = puzzle.blanks.includes(key);
+                            const value = puzzle.grid[gridRow][gridCol];
+
+                            if (isBlank) {
+                                div.className = 'cell input';
+                                div.dataset.key = key;
+                                div.textContent = puzzle.userInputs[key] || '';
+                                div.style.width = cellSize + 'px';
+                                div.style.height = cellSize + 'px';
+                                div.style.fontSize = (cellSize * 0.45) + 'px';
+                                div.addEventListener('click', () => selectCell(div, key));
+                            } else {
+                                div.className = 'cell number';
+                                div.textContent = value;
+                                div.style.width = cellSize + 'px';
+                                div.style.height = cellSize + 'px';
+                                div.style.fontSize = (cellSize * 0.45) + 'px';
+                            }
+                        } else if (gridCol === size && gridRow < size) {
+                            // Row result
                             div.className = 'cell number';
-                            div.textContent = puzzle.values[cell];
+                            div.textContent = puzzle.rowResults[gridRow];
+                            div.style.width = cellSize + 'px';
+                            div.style.height = cellSize + 'px';
+                            div.style.fontSize = (cellSize * 0.45) + 'px';
+                        } else if (gridRow === size && gridCol < size) {
+                            // Column result
+                            div.className = 'cell number';
+                            div.textContent = puzzle.colResults[gridCol];
+                            div.style.width = cellSize + 'px';
+                            div.style.height = cellSize + 'px';
+                            div.style.fontSize = (cellSize * 0.45) + 'px';
+                        } else {
+                            div.className = 'cell empty';
                         }
-                    } else if (cell === '+') {
-                        div.className = 'cell operator';
-                        div.textContent = '+';
-                    } else if (cell === '=') {
-                        div.className = 'cell equals';
-                        div.textContent = '=';
+                    } else if (isNumberRow && !isNumberCol) {
+                        // Horizontal operator (between columns in same row)
+                        const opCol = Math.floor((col - 1) / 2);
+                        if (opCol < size - 1 && gridRow < size) {
+                            div.className = 'cell operator';
+                            div.textContent = puzzle.rowOps[gridRow][opCol];
+                            div.style.fontSize = (opSize * 0.6) + 'px';
+                        } else if (opCol === size - 1 && gridRow < size) {
+                            // Equals sign before result
+                            div.className = 'cell equals';
+                            div.textContent = '=';
+                            div.style.fontSize = (opSize * 0.6) + 'px';
+                        } else {
+                            div.className = 'cell empty';
+                        }
+                    } else if (!isNumberRow && isNumberCol) {
+                        // Vertical operator (between rows in same column)
+                        const opRow = Math.floor((row - 1) / 2);
+                        if (opRow < size - 1 && gridCol < size) {
+                            div.className = 'cell operator';
+                            div.textContent = puzzle.colOps[gridCol][opRow];
+                            div.style.fontSize = (opSize * 0.6) + 'px';
+                        } else if (opRow === size - 1 && gridCol < size) {
+                            // Equals sign before result
+                            div.className = 'cell equals';
+                            div.textContent = '=';
+                            div.style.fontSize = (opSize * 0.6) + 'px';
+                        } else {
+                            div.className = 'cell empty';
+                        }
                     } else {
-                        div.className = 'cell';
+                        // Corner/intersection (empty)
+                        div.className = 'cell empty';
                     }
 
-                    grid.appendChild(div);
-                });
-            });
+                    gridEl.appendChild(div);
+                }
+            }
+
+            // Update subtitle
+            const hasMultiply = state.difficulty !== 'easy';
+            document.getElementById('subtitleText').textContent =
+                hasMultiply ? 'Fill blanks: + - × work in rows & columns!' : 'Fill blanks: + - work in rows & columns!';
+        }
+
+        function generateGridTemplate(size, cellSize, opSize) {
+            const parts = [];
+            for (let i = 0; i < size; i++) {
+                parts.push(cellSize + 'px');
+                if (i < size - 1) {
+                    parts.push(opSize + 'px');
+                }
+            }
+            // Add equals column and result column
+            parts.push(opSize + 'px');
+            parts.push(cellSize + 'px');
+            return parts.join(' ');
         }
 
         function renderNumpad() {
             const numpad = document.getElementById('numpad');
             numpad.innerHTML = '';
 
-            const maxNum = Math.min(state.maxNum, 10);
-
-            for (let i = 1; i <= maxNum; i++) {
-                const btn = document.createElement('button');
-                btn.className = 'num-btn';
-                btn.textContent = i;
-                btn.addEventListener('click', () => inputNumber(i));
-                numpad.appendChild(btn);
+            // Determine max number needed
+            const puzzle = state.puzzle;
+            let maxNeeded = 0;
+            for (let r = 0; r < puzzle.size; r++) {
+                for (let c = 0; c < puzzle.size; c++) {
+                    maxNeeded = Math.max(maxNeeded, puzzle.grid[r][c]);
+                }
             }
 
-            // Add clear button
+            const showMax = Math.min(Math.max(maxNeeded + 3, 10), 20);
+
+            // First row: 1-5
+            for (let i = 1; i <= 5; i++) {
+                addNumButton(numpad, i);
+            }
+
+            // Second row: 6-10 or 6-9 + clear
+            for (let i = 6; i <= 10; i++) {
+                addNumButton(numpad, i);
+            }
+
+            // Additional rows if needed
+            if (showMax > 10) {
+                for (let i = 11; i <= Math.min(showMax, 15); i++) {
+                    addNumButton(numpad, i);
+                }
+            }
+
+            if (showMax > 15) {
+                for (let i = 16; i <= Math.min(showMax, 20); i++) {
+                    addNumButton(numpad, i);
+                }
+            }
+
+            // Clear button
             const clearBtn = document.createElement('button');
             clearBtn.className = 'num-btn clear';
             clearBtn.textContent = '✕';
             clearBtn.addEventListener('click', () => inputNumber(null));
             numpad.appendChild(clearBtn);
-
-            // Add more numbers if needed
-            if (state.maxNum > 10) {
-                for (let i = 11; i <= state.maxNum; i++) {
-                    const btn = document.createElement('button');
-                    btn.className = 'num-btn';
-                    btn.textContent = i;
-                    btn.addEventListener('click', () => inputNumber(i));
-                    numpad.appendChild(btn);
-                }
-            }
         }
 
-        function selectCell(div, index) {
+        function addNumButton(container, num) {
+            const btn = document.createElement('button');
+            btn.className = 'num-btn';
+            btn.textContent = num;
+            btn.addEventListener('click', () => inputNumber(num));
+            container.appendChild(btn);
+        }
+
+        function selectCell(div, key) {
             document.querySelectorAll('.cell.input').forEach(c => c.classList.remove('selected'));
             div.classList.add('selected');
-            state.selectedCell = index;
+            state.selectedCell = key;
         }
 
         function inputNumber(num) {
@@ -594,7 +815,7 @@
             renderPuzzle();
 
             // Re-select the cell
-            const cell = document.querySelector(`.cell.input[data-index="${state.selectedCell}"]`);
+            const cell = document.querySelector(`.cell.input[data-key="${state.selectedCell}"]`);
             if (cell) cell.classList.add('selected');
         }
 
@@ -602,41 +823,65 @@
             const puzzle = state.puzzle;
 
             // Check if all blanks are filled
-            for (const idx of puzzle.blanks) {
-                if (!puzzle.userInputs[idx]) {
+            for (const key of puzzle.blanks) {
+                if (puzzle.userInputs[key] === undefined) {
                     alert('Please fill in all blank cells!');
                     return false;
                 }
             }
 
-            // Get all values (mix of given and user input)
-            const values = puzzle.values.map((v, i) =>
-                puzzle.blanks.includes(i) ? puzzle.userInputs[i] : v
-            );
+            // Get current grid values
+            const currentGrid = [];
+            for (let r = 0; r < puzzle.size; r++) {
+                currentGrid[r] = [];
+                for (let c = 0; c < puzzle.size; c++) {
+                    const key = `${r},${c}`;
+                    if (puzzle.blanks.includes(key)) {
+                        currentGrid[r][c] = puzzle.userInputs[key];
+                    } else {
+                        currentGrid[r][c] = puzzle.grid[r][c];
+                    }
+                }
+            }
 
-            // Check equations
-            const row1 = values[0] + values[1] === values[2];
-            const row2 = values[3] + values[4] === values[5];
-            const row3 = values[6] + values[7] === values[8];
-            const col1 = values[0] + values[3] === values[6];
-            const col2 = values[1] + values[4] === values[7];
-            const col3 = values[2] + values[5] === values[8];
+            // Check all row equations
+            let allCorrect = true;
+            for (let r = 0; r < puzzle.size; r++) {
+                let result = currentGrid[r][0];
+                for (let c = 1; c < puzzle.size; c++) {
+                    result = applyOp(result, puzzle.rowOps[r][c-1], currentGrid[r][c]);
+                }
+                if (result !== puzzle.rowResults[r]) {
+                    allCorrect = false;
+                }
+            }
 
-            const allCorrect = row1 && row2 && row3 && col1 && col2 && col3;
+            // Check all column equations
+            for (let c = 0; c < puzzle.size; c++) {
+                let result = currentGrid[0][c];
+                for (let r = 1; r < puzzle.size; r++) {
+                    result = applyOp(result, puzzle.colOps[c][r-1], currentGrid[r][c]);
+                }
+                if (result !== puzzle.colResults[c]) {
+                    allCorrect = false;
+                }
+            }
 
-            // Show feedback
+            // Show feedback on cells
             document.querySelectorAll('.cell.input').forEach(cell => {
-                const idx = parseInt(cell.dataset.index);
-                const correct = puzzle.userInputs[idx] === puzzle.values[idx];
+                const key = cell.dataset.key;
+                const [r, c] = key.split(',').map(Number);
+                const correct = puzzle.userInputs[key] === puzzle.grid[r][c];
                 cell.classList.remove('correct', 'wrong');
                 cell.classList.add(correct ? 'correct' : 'wrong');
             });
 
             if (allCorrect) {
-                // Calculate score
-                const timeBonus = Math.max(0, 100 - state.time);
+                const timeBonus = Math.max(0, 150 - state.time);
                 const levelBonus = state.level * 50;
-                state.score += timeBonus + levelBonus + 100;
+                const diffBonus = state.difficulty === 'hard' ? 150 : (state.difficulty === 'medium' ? 75 : 0);
+                const sizeBonus = puzzle.size * 20;
+                state.score += timeBonus + levelBonus + 100 + diffBonus + sizeBonus;
                 state.totalTime += state.time;
 
                 document.getElementById('score').textContent = state.score;
@@ -652,7 +897,7 @@
         function nextLevel() {
             state.level++;
 
-            if (state.level > 20) {
+            if (state.level > 10) {
                 endGame(true);
                 return;
             }
@@ -667,6 +912,7 @@
             document.getElementById('nextBtn').style.display = 'none';
 
             renderPuzzle();
+            renderNumpad();
             startTimer();
         }
 
@@ -704,23 +950,19 @@
             clearInterval(state.timerInterval);
 
             const modal = document.getElementById('resultModal');
-            const emoji = document.getElementById('resultEmoji');
-            const title = document.getElementById('resultTitle');
-            const message = document.getElementById('resultMessage');
-
             document.getElementById('finalScore').textContent = state.score;
             document.getElementById('levelsCompleted').textContent = state.level - 1;
             document.getElementById('totalTime').textContent = state.totalTime;
 
             if (completed) {
-                emoji.textContent = '🏆';
-                title.textContent = 'Congratulations!';
-                message.textContent = 'You completed all 20 levels!';
-                state.score += 500; // Completion bonus
+                document.getElementById('resultEmoji').textContent = '🏆';
+                document.getElementById('resultTitle').textContent = 'Congratulations!';
+                document.getElementById('resultMessage').textContent = 'You completed all 10 levels!';
+                state.score += 500;
             } else {
-                emoji.textContent = '👍';
-                title.textContent = 'Game Over';
-                message.textContent = 'Great effort!';
+                document.getElementById('resultEmoji').textContent = '👍';
+                document.getElementById('resultTitle').textContent = 'Game Over';
+                document.getElementById('resultMessage').textContent = 'Great effort!';
             }
 
             AdManager.showInterstitial(() => {
