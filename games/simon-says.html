@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#e94560">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <title>Simon Says - Mini Games Arcade</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: max(20px, env(safe-area-inset-top)) 20px 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .back-btn {
+            color: #e94560;
+            text-decoration: none;
+            font-size: 1.5rem;
+            padding: 8px 12px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover { background: rgba(233, 69, 96, 0.2); }
+
+        h1 {
+            color: #fff;
+            font-size: 1.8rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .stat {
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .stat.score {
+            background: linear-gradient(145deg, #4ecca3, #3db892);
+            color: white;
+        }
+
+        .stat.level {
+            background: linear-gradient(145deg, #7c4dff, #651fff);
+            color: white;
+        }
+
+        .stat.high {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffd54f;
+            border: 2px solid #ffd54f;
+        }
+
+        .message {
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 40px;
+            text-align: center;
+            padding: 10px 25px;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .message.watch {
+            color: #1a1a2e;
+            background: #ffd54f;
+            animation: pulse 0.8s infinite;
+        }
+        .message.go {
+            color: #1a1a2e;
+            background: #4ecca3;
+        }
+        .message.wrong {
+            color: #fff;
+            background: #e94560;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .game-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin-bottom: 30px;
+        }
+
+        .simon-board {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #1a1a2e;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 8px;
+            padding: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .simon-btn {
+            border: none;
+            cursor: pointer;
+            transition: filter 0.1s, transform 0.1s;
+            position: relative;
+        }
+
+        .simon-btn:active:not(.disabled) {
+            transform: scale(0.95);
+        }
+
+        .simon-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.4;
+        }
+
+        .simon-btn.green {
+            background: linear-gradient(145deg, #2ecc71, #27ae60);
+            border-radius: 100% 0 0 0;
+        }
+
+        .simon-btn.red {
+            background: linear-gradient(145deg, #e74c3c, #c0392b);
+            border-radius: 0 100% 0 0;
+        }
+
+        .simon-btn.yellow {
+            background: linear-gradient(145deg, #f1c40f, #f39c12);
+            border-radius: 0 0 0 100%;
+        }
+
+        .simon-btn.blue {
+            background: linear-gradient(145deg, #3498db, #2980b9);
+            border-radius: 0 0 100% 0;
+        }
+
+        .simon-btn.lit {
+            transform: scale(1.05);
+            opacity: 1 !important;
+        }
+
+        .simon-btn.green.lit {
+            background: #7fff7f !important;
+            box-shadow: 0 0 60px #2ecc71, 0 0 100px #2ecc71;
+        }
+        .simon-btn.red.lit {
+            background: #ff6b6b !important;
+            box-shadow: 0 0 60px #e74c3c, 0 0 100px #e74c3c;
+        }
+        .simon-btn.yellow.lit {
+            background: #ffff6b !important;
+            box-shadow: 0 0 60px #f1c40f, 0 0 100px #f1c40f;
+        }
+        .simon-btn.blue.lit {
+            background: #6bbbff !important;
+            box-shadow: 0 0 60px #3498db, 0 0 100px #3498db;
+        }
+
+        .center-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .center-circle span {
+            font-size: 2.5rem;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { transform: translateY(-2px); }
+
+        .btn.start {
+            background: linear-gradient(145deg, #4ecca3, #3db892);
+            color: white;
+        }
+
+        .btn.quit {
+            background: rgba(255, 255, 255, 0.1);
+            color: #aaa;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 350px;
+            width: 90%;
+            border: 2px solid #e94560;
+            color: #fff;
+        }
+
+        .modal-content h2 {
+            color: #4ecca3;
+            margin-bottom: 15px;
+        }
+
+        .modal-content .emoji { font-size: 3rem; margin-bottom: 10px; }
+        .modal-content p { color: #aaa; margin-bottom: 10px; }
+
+        .final-stats {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+
+        .final-stats p { margin: 5px 0; color: #fff; }
+
+        .name-input {
+            margin: 15px 0;
+        }
+
+        .name-input input {
+            padding: 12px;
+            font-size: 1rem;
+            border: 2px solid #e94560;
+            border-radius: 10px;
+            width: 180px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .screen { display: none; }
+        .screen.active { display: flex; flex-direction: column; align-items: center; }
+
+        /* Start screen */
+        .start-screen {
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .start-screen h2 {
+            color: #4ecca3;
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .start-screen p {
+            color: #888;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .start-screen .demo-board {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+        }
+
+        .start-screen .demo-board .simon-btn {
+            pointer-events: none;
+        }
+
+        .how-to {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .how-to h3 {
+            color: #e94560;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .how-to ol {
+            color: #aaa;
+            padding-left: 20px;
+        }
+
+        .how-to li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 350px) {
+            .game-container {
+                width: 260px;
+                height: 260px;
+            }
+            .center-circle {
+                width: 80px;
+                height: 80px;
+            }
+            .center-circle span {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../index.html" class="back-btn">←</a>
+        <h1>Simon Says</h1>
+    </div>
+
+    <!-- Start Screen -->
+    <div class="screen start-screen active" id="startScreen">
+        <h2>Simon Says</h2>
+
+        <div class="game-container demo-board">
+            <div class="simon-board">
+                <button class="simon-btn green"></button>
+                <button class="simon-btn red"></button>
+                <button class="simon-btn yellow"></button>
+                <button class="simon-btn blue"></button>
+            </div>
+            <div class="center-circle"><span>🧠</span></div>
+        </div>
+
+        <div class="how-to">
+            <h3>How to Play</h3>
+            <ol>
+                <li>Watch the pattern of colors that light up</li>
+                <li>Repeat the pattern by tapping the colors</li>
+                <li>Each round adds one more color to remember</li>
+                <li>How far can you go?</li>
+            </ol>
+        </div>
+
+        <div class="buttons">
+            <button class="btn start" id="startBtn">Start Game</button>
+            <button class="btn quit" id="viewScoresBtn">Leaderboard</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="screen" id="gameScreen">
+        <div class="stats-bar">
+            <div class="stat level">Round: <span id="level">1</span></div>
+            <div class="stat score">Score: <span id="score">0</span></div>
+            <div class="stat high">Best: <span id="highScore">0</span></div>
+        </div>
+
+        <div class="message" id="message">Watch carefully...</div>
+
+        <div class="game-container">
+            <div class="simon-board" id="simonBoard">
+                <button class="simon-btn green" data-color="green"></button>
+                <button class="simon-btn red" data-color="red"></button>
+                <button class="simon-btn yellow" data-color="yellow"></button>
+                <button class="simon-btn blue" data-color="blue"></button>
+            </div>
+            <div class="center-circle"><span>🧠</span></div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn quit" id="quitBtn">Quit</button>
+        </div>
+    </div>
+
+    <!-- Result Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="emoji" id="resultEmoji">🎉</div>
+            <h2 id="resultTitle">Game Over!</h2>
+            <p id="resultMessage">Great memory!</p>
+
+            <div class="final-stats">
+                <p>Final Score: <strong id="finalScore">0</strong></p>
+                <p>Rounds Completed: <strong id="roundsCompleted">0</strong></p>
+                <p id="newHighScore" style="color:#ffd54f;display:none;">New High Score!</p>
+            </div>
+
+            <div class="name-input" id="nameInput">
+                <p style="color:#4ecca3;margin-bottom:10px;">Enter your name:</p>
+                <input type="text" id="playerName" placeholder="Your name" maxlength="15">
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn start" id="playAgainBtn">Play Again</button>
+                <button class="btn quit" id="menuBtn">Menu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scoreboard Modal -->
+    <div class="modal" id="scoreboardModal">
+        <div class="modal-content">
+            <h2>🏆 Leaderboard</h2>
+            <div id="scoreboardList" style="margin:15px 0;"></div>
+            <div class="modal-buttons">
+                <button class="btn quit" id="closeScoresBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase-config.js"></script>
+    <script src="../js/ad-manager.js"></script>
+    <script src="../js/haptics.js"></script>
+    <script>document.addEventListener('DOMContentLoaded', () => AdManager.init());</script>
+    <script>
+        const COLORS = ['green', 'red', 'yellow', 'blue'];
+
+        // Audio frequencies for each color
+        const FREQUENCIES = {
+            green: 392,  // G4
+            red: 330,    // E4
+            yellow: 262, // C4
+            blue: 196    // G3
+        };
+
+        let state = {
+            sequence: [],
+            playerIndex: 0,
+            score: 0,
+            round: 1,
+            isPlaying: false,
+            isShowingSequence: false,
+            highScore: parseInt(localStorage.getItem('simonHighScore') || '0'),
+            audioContext: null
+        };
+
+        function initAudio() {
+            if (!state.audioContext) {
+                state.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playTone(color, duration = 300) {
+            if (!state.audioContext) return;
+
+            try {
+                const oscillator = state.audioContext.createOscillator();
+                const gainNode = state.audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(state.audioContext.destination);
+
+                oscillator.frequency.value = FREQUENCIES[color];
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.3, state.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, state.audioContext.currentTime + duration / 1000);
+
+                oscillator.start(state.audioContext.currentTime);
+                oscillator.stop(state.audioContext.currentTime + duration / 1000);
+            } catch (e) {
+                // Audio not supported
+            }
+        }
+
+        const LIT_COLORS = {
+            green: '#7fff7f',
+            red: '#ff6b6b',
+            yellow: '#ffff6b',
+            blue: '#6bbbff'
+        };
+
+        function lightUp(color, duration = 300) {
+            const btn = document.querySelector(`#simonBoard .simon-btn[data-color="${color}"]`);
+            if (!btn) return;
+
+            // Store original styles
+            const originalBg = btn.style.background;
+            const originalOpacity = btn.style.opacity;
+            const originalBoxShadow = btn.style.boxShadow;
+
+            // Apply lit effect with inline styles
+            btn.style.background = LIT_COLORS[color];
+            btn.style.opacity = '1';
+            btn.style.boxShadow = `0 0 60px ${LIT_COLORS[color]}, 0 0 100px ${LIT_COLORS[color]}`;
+
+            playTone(color, duration);
+
+            setTimeout(() => {
+                btn.style.background = originalBg;
+                btn.style.opacity = originalOpacity;
+                btn.style.boxShadow = originalBoxShadow;
+            }, duration);
+        }
+
+        function setButtonsDisabled(disabled) {
+            document.querySelectorAll('.simon-btn').forEach(btn => {
+                if (disabled) {
+                    btn.classList.add('disabled');
+                } else {
+                    btn.classList.remove('disabled');
+                }
+            });
+        }
+
+        function updateDisplay() {
+            document.getElementById('level').textContent = state.round;
+            document.getElementById('score').textContent = state.score;
+            document.getElementById('highScore').textContent = state.highScore;
+        }
+
+        function setMessage(text, type = '') {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message ' + type;
+        }
+
+        async function showSequence() {
+            state.isShowingSequence = true;
+            setButtonsDisabled(true);
+            setMessage('👀 WATCH!', 'watch');
+
+            await sleep(800);
+
+            for (let i = 0; i < state.sequence.length; i++) {
+                lightUp(state.sequence[i], 500);
+                await sleep(700);
+            }
+
+            await sleep(300);
+            state.isShowingSequence = false;
+            setButtonsDisabled(false);
+            state.playerIndex = 0;
+            setMessage('👆 YOUR TURN - Tap!', 'go');
+            Haptics.light();
+        }
+
+        function addToSequence() {
+            const randomColor = COLORS[Math.floor(Math.random() * COLORS.length)];
+            state.sequence.push(randomColor);
+        }
+
+        function handlePlayerInput(color) {
+            if (state.isShowingSequence || !state.isPlaying) return;
+
+            lightUp(color, 200);
+            Haptics.light();
+
+            if (color === state.sequence[state.playerIndex]) {
+                state.playerIndex++;
+
+                if (state.playerIndex === state.sequence.length) {
+                    // Completed the sequence!
+                    state.score += state.round * 10;
+                    state.round++;
+                    updateDisplay();
+
+                    Haptics.success();
+                    setMessage('✓ Correct!', 'go');
+                    setButtonsDisabled(true);
+
+                    setTimeout(() => {
+                        addToSequence();
+                        showSequence();
+                    }, 1200);
+                }
+            } else {
+                // Wrong!
+                gameOver();
+            }
+        }
+
+        function gameOver() {
+            state.isPlaying = false;
+            setButtonsDisabled(true);
+            setMessage('✗ Wrong!', 'wrong');
+            Haptics.error();
+
+            // Flash all buttons red
+            document.querySelectorAll('.simon-btn').forEach(btn => {
+                btn.classList.add('lit');
+            });
+
+            setTimeout(() => {
+                document.querySelectorAll('.simon-btn').forEach(btn => {
+                    btn.classList.remove('lit');
+                });
+                showResults();
+            }, 500);
+        }
+
+        function showResults() {
+            const isNewHigh = state.score > state.highScore;
+
+            if (isNewHigh) {
+                state.highScore = state.score;
+                localStorage.setItem('simonHighScore', state.highScore);
+                document.getElementById('highScore').textContent = state.highScore;
+            }
+
+            document.getElementById('finalScore').textContent = state.score;
+            document.getElementById('roundsCompleted').textContent = state.round - 1;
+            document.getElementById('newHighScore').style.display = isNewHigh ? 'block' : 'none';
+
+            if (state.round >= 10) {
+                document.getElementById('resultEmoji').textContent = '🏆';
+                document.getElementById('resultTitle').textContent = 'Amazing!';
+                document.getElementById('resultMessage').textContent = 'You have incredible memory!';
+            } else if (state.round >= 5) {
+                document.getElementById('resultEmoji').textContent = '🎉';
+                document.getElementById('resultTitle').textContent = 'Great Job!';
+                document.getElementById('resultMessage').textContent = 'Nice memory skills!';
+            } else {
+                document.getElementById('resultEmoji').textContent = '👍';
+                document.getElementById('resultTitle').textContent = 'Game Over';
+                document.getElementById('resultMessage').textContent = 'Keep practicing!';
+            }
+
+            AdManager.showInterstitial(() => {
+                setTimeout(() => {
+                    document.getElementById('resultModal').classList.add('show');
+                }, 300);
+            });
+        }
+
+        function startGame() {
+            initAudio();
+
+            state.sequence = [];
+            state.playerIndex = 0;
+            state.score = 0;
+            state.round = 1;
+            state.isPlaying = true;
+            state.isShowingSequence = false;
+
+            document.getElementById('startScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+
+            updateDisplay();
+
+            setTimeout(() => {
+                addToSequence();
+                showSequence();
+            }, 500);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Event listeners
+        document.getElementById('startBtn').addEventListener('click', startGame);
+
+        document.querySelectorAll('#simonBoard .simon-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                handlePlayerInput(btn.dataset.color);
+            });
+        });
+
+        document.getElementById('quitBtn').addEventListener('click', () => {
+            state.isPlaying = false;
+            showResults();
+        });
+
+        document.getElementById('playAgainBtn').addEventListener('click', async () => {
+            await saveScore();
+            document.getElementById('resultModal').classList.remove('show');
+            startGame();
+        });
+
+        document.getElementById('menuBtn').addEventListener('click', async () => {
+            await saveScore();
+            window.location.href = '../index.html';
+        });
+
+        document.getElementById('viewScoresBtn').addEventListener('click', showScoreboard);
+        document.getElementById('closeScoresBtn').addEventListener('click', () => {
+            document.getElementById('scoreboardModal').classList.remove('show');
+        });
+
+        async function saveScore() {
+            if (state.score > 0 && typeof addScoreToDB === 'function') {
+                const name = document.getElementById('playerName').value.trim() || 'Anonymous';
+                await addScoreToDB('simon_says', name, state.score);
+                document.getElementById('playerName').value = '';
+            }
+        }
+
+        async function showScoreboard() {
+            const container = document.getElementById('scoreboardList');
+            container.innerHTML = '<p style="color:#888;padding:20px;">Loading...</p>';
+            document.getElementById('scoreboardModal').classList.add('show');
+
+            if (typeof getScoresFromDB !== 'function') {
+                container.innerHTML = '<p style="color:#888;padding:20px;">Scoreboard unavailable</p>';
+                return;
+            }
+
+            const scores = await getScoresFromDB('simon_says');
+            if (scores.length === 0) {
+                container.innerHTML = '<p style="color:#888;padding:20px;">No scores yet!</p>';
+                return;
+            }
+
+            let html = '<div style="text-align:left;">';
+            scores.forEach((entry, i) => {
+                html += `<div style="display:flex;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,0.05);margin:3px 0;border-radius:5px;">
+                    <span style="color:#e94560;font-weight:bold;width:25px;">#${i+1}</span>
+                    <span style="flex:1;color:#fff;">${escapeHtml(entry.player_name)}</span>
+                    <span style="color:#4ecca3;font-weight:bold;">${entry.score.toLocaleString()}</span>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Initialize high score display
+        document.getElementById('highScore').textContent = state.highScore;
+    </script>
+</body>
+</html>

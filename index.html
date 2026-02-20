@@ -325,6 +325,13 @@
             <p>Fill in the numbers so all equations work! Rows and columns must add up correctly.</p>
             <span class="play-btn">Play Now</span>
         </a>
+
+        <a href="games/simon-says.html" class="game-card">
+            <span class="game-icon">🟢🔴🟡🔵</span>
+            <h2>Simon Says</h2>
+            <p>Watch the pattern and repeat it! Each round adds one more color. How far can you go?</p>
+            <span class="play-btn">Play Now</span>
+        </a>
     </div>
 
     <div class="scores-section">
@@ -335,13 +342,14 @@
             <button class="score-btn" data-game="typing_defense">🏰 Typing Defense</button>
             <button class="score-btn" data-game="pokemon_battle">⚡ Pokemon Battle</button>
             <button class="score-btn" data-game="math_puzzle">🧮 Math Crossword</button>
+            <button class="score-btn" data-game="simon_says">🧠 Simon Says</button>
         </div>
     </div>
 
     <div id="banner-ad" style="width:100%;max-width:728px;margin:20px auto;min-height:90px;"></div>
 
     <footer>
-        5 games available &bull; <a href="privacy.html" style="color:#4ecca3;">Privacy Policy</a>
+        6 games available &bull; <a href="privacy.html" style="color:#4ecca3;">Privacy Policy</a>
     </footer>
 
     <!-- Scoreboard Modal -->
@@ -355,6 +363,7 @@
                 <button class="tab-btn" data-game="typing_defense">Typing Defense</button>
                 <button class="tab-btn" data-game="pokemon_battle">Pokemon Battle</button>
                 <button class="tab-btn" data-game="math_puzzle">Math Crossword</button>
+                <button class="tab-btn" data-game="simon_says">Simon Says</button>
             </div>
 
             <div class="level-tabs" id="levelTabs">
@@ -418,7 +427,8 @@
                 'tetris': 'Tetris',
                 'typing_defense': 'Typing Defense',
                 'pokemon_battle': 'Pokemon Battle',
-                'math_puzzle': 'Math Crossword'
+                'math_puzzle': 'Math Crossword',
+                'simon_says': 'Simon Says'
             };
 
             let title = gameNames[currentGame];

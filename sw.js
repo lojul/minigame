@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mini-games-arcade-v3';
+const CACHE_NAME = 'mini-games-arcade-v4';
 
 const LOCAL_ASSETS = [
   '/',
@@ -8,8 +8,11 @@ const LOCAL_ASSETS = [
   '/games/typing-defense.html',
   '/games/pokemon-battle.html',
   '/games/math-puzzle.html',
+  '/games/simon-says.html',
   '/js/supabase-config.js',
   '/js/ad-manager.js',
+  '/js/haptics.js',
+  '/privacy.html',
   '/manifest.json',
   '/icons/icon-72.png',
   '/icons/icon-96.png',
