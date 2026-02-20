@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mini-games-arcade-v2';
+const CACHE_NAME = 'mini-games-arcade-v3';
 
 const LOCAL_ASSETS = [
   '/',
@@ -6,10 +6,18 @@ const LOCAL_ASSETS = [
   '/games/memory-match.html',
   '/games/tetris.html',
   '/games/typing-defense.html',
+  '/games/pokemon-battle.html',
+  '/games/math-puzzle.html',
   '/js/supabase-config.js',
   '/js/ad-manager.js',
   '/manifest.json',
+  '/icons/icon-72.png',
+  '/icons/icon-96.png',
+  '/icons/icon-128.png',
+  '/icons/icon-144.png',
+  '/icons/icon-152.png',
   '/icons/icon-192.png',
+  '/icons/icon-384.png',
   '/icons/icon-512.png',
   '/icons/apple-touch-icon.png',
 ];

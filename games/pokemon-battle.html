@@ -983,7 +983,7 @@
             scores.forEach((entry, i) => {
                 html += `<div style="display:flex;justify-content:space-between;padding:8px 10px;background:rgba(255,255,255,0.05);margin:3px 0;border-radius:5px;">
                     <span style="color:#e94560;font-weight:bold;width:25px;">#${i+1}</span>
-                    <span style="flex:1;color:#fff;">${entry.player_name}</span>
+                    <span style="flex:1;color:#fff;">${escapeHtml(entry.player_name)}</span>
                     <span style="color:#4ecca3;font-weight:bold;">${entry.score.toLocaleString()}</span>
                 </div>`;
             });

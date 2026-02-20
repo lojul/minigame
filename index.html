@@ -431,7 +431,7 @@
                 html += `
                     <div class="score-entry">
                         <span class="rank">#${index + 1}</span>
-                        <span class="player-name">${entry.player_name}</span>
+                        <span class="player-name">${escapeHtml(entry.player_name)}</span>
                         <span class="score-value">${scoreDisplay}</span>
                     </div>
                 `;

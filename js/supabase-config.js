@@ -2,6 +2,14 @@
 const SUPABASE_URL = 'https://risydxsgttsbidgsjlbg.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJpc3lkeHNndHRzYmlkZ3NqbGJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2MjE5NzIsImV4cCI6MjA4NjE5Nzk3Mn0.VOn63EjfKv9SvcyD9Xmumn5WIKqOQbFyGv_DrGkP5a0';
 
+// HTML escape function to prevent XSS attacks
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 // Initialize Supabase client
 let supabaseClient = null;
 if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function') {
