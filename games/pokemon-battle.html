@@ -755,11 +755,8 @@
                 damage = 10 + Math.floor(Math.random() * 10);
                 message = "Not very effective... 😰";
                 effect = '😰';
-                const playerDamage = 20 + Math.floor(Math.random() * 15);
-                state.playerHp = Math.max(0, state.playerHp - playerDamage);
                 state.streak = 0;
                 state.score += 10;
-                updatePlayerHp();
             } else {
                 damage = 25 + Math.floor(Math.random() * 15);
                 message = "It's a hit!";
@@ -793,11 +790,65 @@
 
                     setTimeout(() => nextOpponent(), 1500);
                 } else {
-                    state.canAttack = true;
-                    enableMoveButtons(true);
-                    document.getElementById('battleMessage').textContent = "Choose your next attack!";
+                    // Opponent attacks back!
+                    opponentAttack();
                 }
             }, 1000);
+        }
+
+        function opponentAttack() {
+            const opponentName = document.getElementById('opponentName').textContent;
+
+            // Opponent picks an attack type (smart AI - tends to pick effective type)
+            const types = ['fire', 'water', 'grass'];
+            const playerType = state.selectedPokemon.type;
+
+            // 60% chance to pick super effective type, 40% random
+            let attackType;
+            if (Math.random() < 0.6) {
+                // Pick super effective type against player
+                if (playerType === 'fire') attackType = 'water';
+                else if (playerType === 'water') attackType = 'grass';
+                else attackType = 'fire';
+            } else {
+                attackType = types[Math.floor(Math.random() * types.length)];
+            }
+
+            const effectiveness = EFFECTIVENESS[attackType][playerType];
+            let damage = 0;
+            let message = '';
+            let effect = '';
+
+            if (effectiveness === 2) {
+                damage = 25 + Math.floor(Math.random() * 15);
+                message = `${opponentName} used ${attackType}! Super effective! 💥`;
+                effect = '💥';
+            } else if (effectiveness === 0.5) {
+                damage = 5 + Math.floor(Math.random() * 5);
+                message = `${opponentName} used ${attackType}... not very effective.`;
+                effect = '😅';
+            } else {
+                damage = 12 + Math.floor(Math.random() * 8);
+                message = `${opponentName} used ${attackType}!`;
+                effect = '⚔️';
+            }
+
+            state.playerHp = Math.max(0, state.playerHp - damage);
+
+            showEffect(effect);
+            updatePlayerHp();
+            document.getElementById('battleMessage').textContent = message;
+
+            setTimeout(() => {
+                if (state.playerHp <= 0) {
+                    endGame(false);
+                    return;
+                }
+
+                state.canAttack = true;
+                enableMoveButtons(true);
+                document.getElementById('battleMessage').textContent = "Choose your next attack!";
+            }, 1200);
         }
 
         function updatePlayerHp() {
