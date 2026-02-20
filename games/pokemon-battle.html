@@ -281,6 +281,7 @@
         .move-btn.fire { background: linear-gradient(145deg, #ff6b35, #f7931e); }
         .move-btn.water { background: linear-gradient(145deg, #3498db, #2980b9); }
         .move-btn.grass { background: linear-gradient(145deg, #27ae60, #1e8449); }
+        .move-btn.normal { background: linear-gradient(145deg, #a0a0a0, #808080); }
 
         .move-btn img { width: 48px; height: 48px; image-rendering: pixelated; }
         .move-btn span { font-size: 0.85rem; color: #fff; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); }
@@ -461,18 +462,7 @@
             <div class="battle-message" id="battleMessage">Choose your attack type!</div>
 
             <div class="move-buttons" id="moveButtons">
-                <button class="move-btn fire" data-type="fire">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png" alt="Fire">
-                    <span>Fire</span>
-                </button>
-                <button class="move-btn water" data-type="water">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/7.png" alt="Water">
-                    <span>Water</span>
-                </button>
-                <button class="move-btn grass" data-type="grass">
-                    <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png" alt="Grass">
-                    <span>Grass</span>
-                </button>
+                <!-- Move buttons are dynamically generated based on selected Pokemon -->
             </div>
 
             <div class="effect-overlay" id="effectOverlay"></div>
@@ -525,34 +515,55 @@
 
         const POKEMON = {
             fire: [
-                { name: 'Charmander', id: 4 },
-                { name: 'Vulpix', id: 37 },
-                { name: 'Growlithe', id: 58 },
-                { name: 'Ponyta', id: 77 },
-                { name: 'Flareon', id: 136 },
-                { name: 'Cyndaquil', id: 155 },
-                { name: 'Torchic', id: 255 },
-                { name: 'Chimchar', id: 390 }
+                { name: 'Charmander', id: 4, moves: [
+                    { name: 'Ember', type: 'fire' },
+                    { name: 'Scratch', type: 'normal' },
+                    { name: 'Dragon Rage', type: 'fire' }
+                ]},
+                { name: 'Vulpix', id: 37, moves: [
+                    { name: 'Flamethrower', type: 'fire' },
+                    { name: 'Quick Attack', type: 'normal' },
+                    { name: 'Fire Spin', type: 'fire' }
+                ]},
+                { name: 'Growlithe', id: 58, moves: [
+                    { name: 'Fire Fang', type: 'fire' },
+                    { name: 'Bite', type: 'normal' },
+                    { name: 'Flame Wheel', type: 'fire' }
+                ]}
             ],
             water: [
-                { name: 'Squirtle', id: 7 },
-                { name: 'Psyduck', id: 54 },
-                { name: 'Poliwag', id: 60 },
-                { name: 'Slowpoke', id: 79 },
-                { name: 'Vaporeon', id: 134 },
-                { name: 'Totodile', id: 158 },
-                { name: 'Mudkip', id: 258 },
-                { name: 'Piplup', id: 393 }
+                { name: 'Squirtle', id: 7, moves: [
+                    { name: 'Water Gun', type: 'water' },
+                    { name: 'Tackle', type: 'normal' },
+                    { name: 'Bubble Beam', type: 'water' }
+                ]},
+                { name: 'Psyduck', id: 54, moves: [
+                    { name: 'Water Pulse', type: 'water' },
+                    { name: 'Confusion', type: 'normal' },
+                    { name: 'Hydro Pump', type: 'water' }
+                ]},
+                { name: 'Poliwag', id: 60, moves: [
+                    { name: 'Bubble', type: 'water' },
+                    { name: 'Pound', type: 'normal' },
+                    { name: 'Water Sport', type: 'water' }
+                ]}
             ],
             grass: [
-                { name: 'Bulbasaur', id: 1 },
-                { name: 'Oddish', id: 43 },
-                { name: 'Bellsprout', id: 69 },
-                { name: 'Tangela', id: 114 },
-                { name: 'Leafeon', id: 470 },
-                { name: 'Chikorita', id: 152 },
-                { name: 'Treecko', id: 252 },
-                { name: 'Turtwig', id: 387 }
+                { name: 'Bulbasaur', id: 1, moves: [
+                    { name: 'Vine Whip', type: 'grass' },
+                    { name: 'Tackle', type: 'normal' },
+                    { name: 'Razor Leaf', type: 'grass' }
+                ]},
+                { name: 'Oddish', id: 43, moves: [
+                    { name: 'Absorb', type: 'grass' },
+                    { name: 'Acid', type: 'normal' },
+                    { name: 'Mega Drain', type: 'grass' }
+                ]},
+                { name: 'Bellsprout', id: 69, moves: [
+                    { name: 'Vine Whip', type: 'grass' },
+                    { name: 'Wrap', type: 'normal' },
+                    { name: 'Razor Leaf', type: 'grass' }
+                ]}
             ]
         };
 
@@ -570,9 +581,10 @@
         ];
 
         const EFFECTIVENESS = {
-            fire: { fire: 0.5, water: 0.5, grass: 2 },
-            water: { fire: 2, water: 0.5, grass: 0.5 },
-            grass: { fire: 0.5, water: 2, grass: 0.5 }
+            fire: { fire: 0.5, water: 0.5, grass: 2, normal: 1 },
+            water: { fire: 2, water: 0.5, grass: 0.5, normal: 1 },
+            grass: { fire: 0.5, water: 2, grass: 0.5, normal: 1 },
+            normal: { fire: 1, water: 1, grass: 1, normal: 1 }
         };
 
         function getSprite(id) { return SPRITE_URL + id + '.png'; }
@@ -672,9 +684,29 @@
             window.location.href = '../index.html';
         });
 
-        document.querySelectorAll('.move-btn').forEach(btn => {
-            btn.addEventListener('click', () => handleAttack(btn.dataset.type));
-        });
+        function renderMoveButtons() {
+            const container = document.getElementById('moveButtons');
+            container.innerHTML = '';
+
+            const moves = state.selectedPokemon.moves;
+            moves.forEach(move => {
+                const btn = document.createElement('button');
+                btn.className = `move-btn ${move.type}`;
+                btn.dataset.type = move.type;
+                btn.dataset.moveName = move.name;
+                btn.innerHTML = `
+                    <span style="font-size:1.5rem;">${getTypeEmoji(move.type)}</span>
+                    <span>${move.name}</span>
+                `;
+                btn.addEventListener('click', () => handleAttack(move.type, move.name));
+                container.appendChild(btn);
+            });
+        }
+
+        function getTypeEmoji(type) {
+            const emojis = { fire: '🔥', water: '💧', grass: '🌿', normal: '⭐' };
+            return emojis[type] || '⭐';
+        }
 
         function startGame() {
             state = {
@@ -696,6 +728,9 @@
             document.getElementById('playerName').textContent = state.selectedPokemon.name;
             document.getElementById('playerHp').style.width = '100%';
 
+            // Render move buttons for selected Pokemon
+            renderMoveButtons();
+
             showScreen('game');
             updateUI();
             nextOpponent();
@@ -714,6 +749,7 @@
 
             const pokemonList = POKEMON[state.opponentType];
             const opponent = pokemonList[Math.floor(Math.random() * pokemonList.length)];
+            state.opponentPokemon = opponent;
             const trainer = TRAINERS[state.currentTrainer];
 
             document.getElementById('opponentPokemon').src = getSprite(opponent.id);
@@ -735,11 +771,12 @@
             });
         }
 
-        function handleAttack(playerType) {
+        function handleAttack(playerType, moveName) {
             if (!state.canAttack || state.gameOver) return;
             state.canAttack = false;
             enableMoveButtons(false);
 
+            const playerName = state.selectedPokemon.name;
             const effectiveness = EFFECTIVENESS[playerType][state.opponentType];
             let damage = 0;
             let message = '';
@@ -747,19 +784,19 @@
 
             if (effectiveness === 2) {
                 damage = 50 + Math.floor(Math.random() * 20);
-                message = "Super effective! 💥";
+                message = `${playerName} used ${moveName}! Super effective! 💥`;
                 effect = '💥';
                 state.streak++;
                 state.score += Math.floor(100 * (1 + state.streak * 0.1));
             } else if (effectiveness === 0.5) {
                 damage = 10 + Math.floor(Math.random() * 10);
-                message = "Not very effective... 😰";
+                message = `${playerName} used ${moveName}... Not very effective 😰`;
                 effect = '😰';
                 state.streak = 0;
                 state.score += 10;
             } else {
                 damage = 25 + Math.floor(Math.random() * 15);
-                message = "It's a hit!";
+                message = `${playerName} used ${moveName}!`;
                 effect = '✨';
                 state.score += 50;
             }
@@ -797,39 +834,45 @@
         }
 
         function opponentAttack() {
-            const opponentName = document.getElementById('opponentName').textContent;
-
-            // Opponent picks an attack type (smart AI - tends to pick effective type)
-            const types = ['fire', 'water', 'grass'];
+            const opponent = state.opponentPokemon;
+            const opponentName = opponent.name;
             const playerType = state.selectedPokemon.type;
 
-            // 60% chance to pick super effective type, 40% random
-            let attackType;
-            if (Math.random() < 0.6) {
-                // Pick super effective type against player
-                if (playerType === 'fire') attackType = 'water';
-                else if (playerType === 'water') attackType = 'grass';
-                else attackType = 'fire';
+            // Smart AI: 70% chance to pick best move, 30% random from available moves
+            let chosenMove;
+            if (Math.random() < 0.7) {
+                // Find the most effective move against player
+                let bestMove = opponent.moves[0];
+                let bestEffectiveness = EFFECTIVENESS[bestMove.type][playerType] || 1;
+
+                for (const move of opponent.moves) {
+                    const eff = EFFECTIVENESS[move.type][playerType] || 1;
+                    if (eff > bestEffectiveness) {
+                        bestMove = move;
+                        bestEffectiveness = eff;
+                    }
+                }
+                chosenMove = bestMove;
             } else {
-                attackType = types[Math.floor(Math.random() * types.length)];
+                chosenMove = opponent.moves[Math.floor(Math.random() * opponent.moves.length)];
             }
 
-            const effectiveness = EFFECTIVENESS[attackType][playerType];
+            const effectiveness = EFFECTIVENESS[chosenMove.type][playerType] || 1;
             let damage = 0;
             let message = '';
             let effect = '';
 
             if (effectiveness === 2) {
                 damage = 25 + Math.floor(Math.random() * 15);
-                message = `${opponentName} used ${attackType}! Super effective! 💥`;
+                message = `${opponentName} used ${chosenMove.name}! Super effective! 💥`;
                 effect = '💥';
             } else if (effectiveness === 0.5) {
                 damage = 5 + Math.floor(Math.random() * 5);
-                message = `${opponentName} used ${attackType}... not very effective.`;
+                message = `${opponentName} used ${chosenMove.name}... not very effective.`;
                 effect = '😅';
             } else {
                 damage = 12 + Math.floor(Math.random() * 8);
-                message = `${opponentName} used ${attackType}!`;
+                message = `${opponentName} used ${chosenMove.name}!`;
                 effect = '⚔️';
             }
 
