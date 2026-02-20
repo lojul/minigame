@@ -509,6 +509,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/ad-manager.js"></script>
+    <script src="../js/haptics.js"></script>
     <script>document.addEventListener('DOMContentLoaded', () => AdManager.init());</script>
     <script>
         const SPRITE_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
@@ -646,6 +647,7 @@
             document.querySelectorAll('.pokemon-option').forEach(d => d.classList.remove('selected'));
             div.classList.add('selected');
             state.selectedPokemon = pokemon;
+            if (window.Haptics) Haptics.selection();
         }
 
         // Event listeners
@@ -788,17 +790,20 @@
                 effect = '💥';
                 state.streak++;
                 state.score += Math.floor(100 * (1 + state.streak * 0.1));
+                if (window.Haptics) Haptics.success();
             } else if (effectiveness === 0.5) {
                 damage = 10 + Math.floor(Math.random() * 10);
                 message = `${playerName} used ${moveName}... Not very effective 😰`;
                 effect = '😰';
                 state.streak = 0;
                 state.score += 10;
+                if (window.Haptics) Haptics.warning();
             } else {
                 damage = 25 + Math.floor(Math.random() * 15);
                 message = `${playerName} used ${moveName}!`;
                 effect = '✨';
                 state.score += 50;
+                if (window.Haptics) Haptics.light();
             }
 
             if (state.streak > state.bestStreak) state.bestStreak = state.streak;
@@ -824,6 +829,7 @@
                         `${trainer.emoji} ${trainer.name} defeated! 🎉`;
                     state.score += 200;
                     updateUI();
+                    if (window.Haptics) Haptics.success();
 
                     setTimeout(() => nextOpponent(), 1500);
                 } else {
@@ -939,11 +945,13 @@
                 message.textContent = 'You defeated all trainers!';
                 trophy.textContent = '🏆';
                 state.score += 500;
+                if (window.Haptics) Haptics.heavy();
             } else {
                 title.textContent = 'Defeated...';
                 title.classList.add('defeat');
                 message.textContent = 'Your Pokemon fainted!';
                 trophy.textContent = '😢';
+                if (window.Haptics) Haptics.error();
             }
 
             state.pendingScore = Math.floor(state.score);

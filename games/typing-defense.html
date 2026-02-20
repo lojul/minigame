@@ -717,6 +717,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/ad-manager.js"></script>
+    <script src="../js/haptics.js"></script>
     <script>document.addEventListener('DOMContentLoaded', () => AdManager.init());</script>
     <script>
         let pendingScore = null;
@@ -1060,11 +1061,13 @@
 
             gameState.score += points;
             gameState.wordsTyped++;
+            if (window.Haptics) Haptics.light();
 
             // Show combo
             if (gameState.combo > 1) {
                 comboDisplay.textContent = `Combo x${gameState.combo}`;
                 comboDisplay.classList.add('show');
+                if (window.Haptics && gameState.combo >= 5) Haptics.success();
             }
 
             // Hit effect
@@ -1147,6 +1150,7 @@
             gameState.running = false;
             clearInterval(spawnLoop);
             cancelAnimationFrame(gameLoop);
+            if (window.Haptics) Haptics.error();
 
             wordInput.disabled = true;
 

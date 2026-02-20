@@ -610,6 +610,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/ad-manager.js"></script>
+    <script src="../js/haptics.js"></script>
     <script>document.addEventListener('DOMContentLoaded', () => AdManager.init());</script>
     <script>
         const allEmojis = ['🎮', '🎲', '🎯', '🎪', '🎨', '🎭', '🎸', '🎺', '🎻', '🎹', '🎤', '🎧'];
@@ -866,6 +867,7 @@
                 card2.classList.add('matched', 'player' + currentPlayer);
                 matchedPairs++;
                 scores[currentPlayer]++;
+                if (window.Haptics) Haptics.success();
 
                 document.getElementById('pairs').textContent = matchedPairs;
                 document.getElementById('player' + currentPlayer + 'Score').textContent = scores[currentPlayer];
@@ -876,6 +878,7 @@
                     endGame();
                 }
             } else {
+                if (window.Haptics) Haptics.warning();
                 canFlip = false;
                 setTimeout(() => {
                     card1.classList.remove('flipped');

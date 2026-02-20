@@ -367,6 +367,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/ad-manager.js"></script>
+    <script src="../js/haptics.js"></script>
     <script>document.addEventListener('DOMContentLoaded', () => AdManager.init());</script>
     <script>
         const canvas = document.getElementById('tetris');
@@ -569,6 +570,11 @@
                 level = Math.floor(lines / 10) + 1;
                 dropInterval = Math.max(100, 1000 - (level - 1) * 100);
                 updateStats();
+                if (window.Haptics) {
+                    if (linesCleared >= 4) Haptics.heavy();
+                    else if (linesCleared >= 2) Haptics.medium();
+                    else Haptics.light();
+                }
             }
         }
 
@@ -591,6 +597,7 @@
         function gameOver() {
             isGameOver = true;
             clearInterval(gameLoop);
+            if (window.Haptics) Haptics.error();
 
             document.getElementById('finalScore').textContent = score;
             document.getElementById('finalLevel').textContent = level;

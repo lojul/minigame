@@ -416,6 +416,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/supabase-config.js"></script>
     <script src="../js/ad-manager.js"></script>
+    <script src="../js/haptics.js"></script>
     <script>document.addEventListener('DOMContentLoaded', () => AdManager.init());</script>
     <script>
         let state = {
@@ -807,6 +808,7 @@
             document.querySelectorAll('.cell.input').forEach(c => c.classList.remove('selected'));
             div.classList.add('selected');
             state.selectedCell = key;
+            Haptics.selection();
         }
 
         function inputNumber(num) {
@@ -818,6 +820,7 @@
             } else {
                 puzzle.userInputs[state.selectedCell] = num;
             }
+            Haptics.light();
 
             renderPuzzle();
 
@@ -884,6 +887,7 @@
             });
 
             if (allCorrect) {
+                Haptics.success();
                 const timeBonus = Math.max(0, 150 - state.time);
                 const levelBonus = state.level * 50;
                 const diffBonus = state.difficulty === 'hard' ? 150 : (state.difficulty === 'medium' ? 75 : 0);
@@ -896,6 +900,8 @@
                 document.getElementById('nextBtn').style.display = 'inline-block';
 
                 clearInterval(state.timerInterval);
+            } else {
+                Haptics.error();
             }
 
             return allCorrect;
