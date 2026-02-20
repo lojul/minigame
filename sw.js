@@ -6,7 +6,6 @@ const LOCAL_ASSETS = [
   '/games/memory-match.html',
   '/games/tetris.html',
   '/games/typing-defense.html',
-  '/games/table-tennis.html',
   '/js/supabase-config.js',
   '/js/ad-manager.js',
   '/manifest.json',
