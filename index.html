@@ -89,6 +89,8 @@
             transition: all 0.3s ease;
             cursor: pointer;
             text-decoration: none;
+            display: flex;
+            flex-direction: column;
         }
 
         .game-card:hover {
@@ -113,11 +115,12 @@
             color: #888;
             font-size: 0.95rem;
             line-height: 1.5;
+            flex-grow: 1;
         }
 
         .game-card .play-btn {
             display: inline-block;
-            margin-top: 20px;
+            margin-top: auto;
             padding: 12px 30px;
             background: linear-gradient(145deg, #e94560, #c73e54);
             color: white;
