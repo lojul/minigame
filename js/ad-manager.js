@@ -6,6 +6,10 @@
  *
  * Ad unit IDs use Google's public test IDs.
  * Replace with real IDs from AdMob console before release.
+ *
+ * Child-directed treatment: This app is configured for family audiences.
+ * - tagForChildDirectedTreatment: true (COPPA compliance)
+ * - maxAdContentRating: 'G' (General audiences only)
  */
 
 const AdManager = (() => {
@@ -49,6 +53,9 @@ const AdManager = (() => {
       await AdMob.initialize({
         testingDevices: ['c2b2282538f4ed783e0e76cf1677e26c'],
         initializeForTesting: false,
+        tagForChildDirectedTreatment: true,
+        tagForUnderAgeOfConsent: true,
+        maxAdContentRating: 'G',
       });
     } catch (e) {
       console.warn('AdMob init failed:', e);
@@ -81,6 +88,7 @@ const AdManager = (() => {
           adSize: 'BANNER',
           position: 'BOTTOM_CENTER',
           margin: 0,
+          npa: true,
         });
       } catch (e) {
         console.warn('AdMob showBanner failed:', e);
@@ -130,7 +138,7 @@ const AdManager = (() => {
   async function showInterstitial(onClosed) {
     if (_isNative && _admob) {
       try {
-        await _admob.prepareInterstitial({ adId: TEST_IDS.interstitial });
+        await _admob.prepareInterstitial({ adId: TEST_IDS.interstitial, npa: true });
         _admob.addListener('interstitialAdLoaded', async () => {
           await _admob.showInterstitial();
         });
@@ -155,7 +163,7 @@ const AdManager = (() => {
   async function showRewarded(onRewarded, onClosed) {
     if (_isNative && _admob) {
       try {
-        await _admob.prepareRewardVideoAd({ adId: TEST_IDS.rewarded });
+        await _admob.prepareRewardVideoAd({ adId: TEST_IDS.rewarded, npa: true });
         _admob.addListener('onRewardedVideoAdLoaded', async () => {
           await _admob.showRewardVideoAd();
         });
