@@ -1,28 +1,16 @@
 /**
- * AdManager — unified ad abstraction for web (AdSense) and native (AdMob via Capacitor).
+ * AdManager — unified ad abstraction for web (AdSense) only.
  *
- * Platform detection: window.Capacitor?.isNativePlatform() is always false in browsers.
- * All methods are safe no-ops / immediate callbacks on web.
+ * Native ads (AdMob) have been removed for Kids Category compliance.
+ * iOS Kids Category apps cannot use tracking or advertising frameworks.
  *
- * Ad unit IDs use Google's public test IDs.
- * Replace with real IDs from AdMob console before release.
- *
- * Child-directed treatment: This app is configured for family audiences.
- * - tagForChildDirectedTreatment: true (COPPA compliance)
- * - maxAdContentRating: 'G' (General audiences only)
+ * Web AdSense is only loaded in browser context (not native app).
  */
 
 const AdManager = (() => {
-  const TEST_IDS = {
-    banner:       'ca-app-pub-3940256099942544/6300978111',
-    interstitial: 'ca-app-pub-3940256099942544/1033173712',
-    rewarded:     'ca-app-pub-3940256099942544/5224354917',
-  };
-
   const ADSENSE_CLIENT = 'ca-pub-XXXXXXXXXXXXXXXX'; // Replace with real AdSense publisher ID
 
   let _isNative = false;
-  let _admob = null;
   let _initialized = false;
 
   function isNative() {
@@ -44,24 +32,6 @@ const AdManager = (() => {
     });
   }
 
-  async function loadAdMob() {
-    try {
-      // In a non-bundled Capacitor WebView, plugins are accessed via window.Capacitor.Plugins
-      const AdMob = window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AdMob;
-      if (!AdMob) throw new Error('AdMob plugin not found');
-      _admob = AdMob;
-      await AdMob.initialize({
-        testingDevices: ['c2b2282538f4ed783e0e76cf1677e26c'],
-        initializeForTesting: false,
-        tagForChildDirectedTreatment: true,
-        tagForUnderAgeOfConsent: true,
-        maxAdContentRating: 'G',
-      });
-    } catch (e) {
-      console.warn('AdMob init failed:', e);
-    }
-  }
-
   /**
    * Must be called once on DOMContentLoaded.
    */
@@ -69,9 +39,8 @@ const AdManager = (() => {
     if (_initialized) return;
     _initialized = true;
     _isNative = isNative();
-    if (_isNative) {
-      await loadAdMob();
-    } else {
+    // Only load ads on web, not in native app (Kids Category compliance)
+    if (!_isNative) {
       await loadAdSense();
     }
   }
@@ -81,20 +50,8 @@ const AdManager = (() => {
    * @param {string} containerId  — id of the <div> to inject <ins> into (web only).
    */
   async function showBanner(containerId) {
-    if (_isNative && _admob) {
-      try {
-        await _admob.showBanner({
-          adId: TEST_IDS.banner,
-          adSize: 'BANNER',
-          position: 'BOTTOM_CENTER',
-          margin: 0,
-          npa: true,
-        });
-      } catch (e) {
-        console.warn('AdMob showBanner failed:', e);
-      }
-      return;
-    }
+    // No ads in native app (Kids Category compliance)
+    if (_isNative) return;
 
     // Web: inject AdSense <ins> tag
     const container = document.getElementById(containerId);
@@ -118,67 +75,30 @@ const AdManager = (() => {
   }
 
   /**
-   * Hide the native banner (no-op on web).
+   * Hide the banner (no-op in native and web).
    */
   async function hideBanner() {
-    if (_isNative && _admob) {
-      try {
-        await _admob.hideBanner();
-      } catch (e) {
-        console.warn('AdMob hideBanner failed:', e);
-      }
-    }
+    // No-op: native ads removed for Kids Category compliance
   }
 
   /**
    * Show an interstitial ad, then call onClosed.
-   * On web: calls onClosed synchronously (0ms delay).
+   * No ads shown in native app (Kids Category compliance).
    * @param {Function} onClosed
    */
   async function showInterstitial(onClosed) {
-    if (_isNative && _admob) {
-      try {
-        await _admob.prepareInterstitial({ adId: TEST_IDS.interstitial, npa: true });
-        _admob.addListener('interstitialAdLoaded', async () => {
-          await _admob.showInterstitial();
-        });
-        _admob.addListener('interstitialAdDismissed', () => {
-          if (typeof onClosed === 'function') onClosed();
-        });
-        return;
-      } catch (e) {
-        console.warn('AdMob interstitial failed:', e);
-      }
-    }
-    // Web: call callback immediately
+    // No ads in native app — call callback immediately
     if (typeof onClosed === 'function') onClosed();
   }
 
   /**
    * Show a rewarded video ad.
-   * On web: calls onClosed synchronously without calling onRewarded.
-   * @param {Function} onRewarded  — called when user earns the reward
-   * @param {Function} onClosed    — called when ad is dismissed (rewarded or not)
+   * No ads shown in native app (Kids Category compliance).
+   * @param {Function} onRewarded  — not called (no ads)
+   * @param {Function} onClosed    — called immediately
    */
   async function showRewarded(onRewarded, onClosed) {
-    if (_isNative && _admob) {
-      try {
-        await _admob.prepareRewardVideoAd({ adId: TEST_IDS.rewarded, npa: true });
-        _admob.addListener('onRewardedVideoAdLoaded', async () => {
-          await _admob.showRewardVideoAd();
-        });
-        _admob.addListener('onRewardedVideoAdReward', () => {
-          if (typeof onRewarded === 'function') onRewarded();
-        });
-        _admob.addListener('onRewardedVideoAdClosed', () => {
-          if (typeof onClosed === 'function') onClosed();
-        });
-        return;
-      } catch (e) {
-        console.warn('AdMob rewarded failed:', e);
-      }
-    }
-    // Web: skip ad, call onClosed immediately
+    // No ads in native app — call onClosed immediately
     if (typeof onClosed === 'function') onClosed();
   }
 

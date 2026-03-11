@@ -11,10 +11,10 @@
   "devDependencies": {
     "@capacitor/cli": "^8.1.0",
     "@playwright/test": "^1.49.0",
-    "serve": "^14.2.3"
+    "serve": "^14.2.3",
+    "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@capacitor-community/admob": "^8.0.0",
     "@capacitor/android": "^8.1.0",
     "@capacitor/app": "^8.0.1",
     "@capacitor/core": "^8.1.0",
