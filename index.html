@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#e94560">
+    <meta name="theme-color" content="#f7f7fb">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <title>Mini Games Arcade</title>
@@ -16,7 +16,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #f7f7fb 0%, #eef1f8 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -25,10 +25,10 @@
         }
 
         h1 {
-            color: #fff;
+            color: #1a1a2e;
             font-size: 3rem;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: none;
         }
 
         .subtitle {
@@ -43,7 +43,7 @@
         }
 
         .scores-section h3 {
-            color: #4ecca3;
+            color: #2ea88a;
             font-size: 1.3rem;
             margin-bottom: 20px;
         }
@@ -57,8 +57,8 @@
 
         .score-btn {
             padding: 12px 24px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+            background: #fff;
+            color: #1a1a2e;
             border: 2px solid #4ecca3;
             border-radius: 12px;
             font-size: 0.95rem;
@@ -67,7 +67,7 @@
         }
 
         .score-btn:hover {
-            background: rgba(78, 204, 163, 0.2);
+            background: rgba(78, 204, 163, 0.15);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(78, 204, 163, 0.3);
         }
@@ -81,11 +81,12 @@
         }
 
         .game-card {
-            background: linear-gradient(145deg, #1f1f3a, #16213e);
+            background: #ffffff;
             border-radius: 20px;
             padding: 30px;
             text-align: center;
-            border: 2px solid transparent;
+            border: 2px solid #e6e6ef;
+            box-shadow: 0 4px 16px rgba(26, 26, 46, 0.06);
             transition: all 0.3s ease;
             cursor: pointer;
             text-decoration: none;
@@ -96,7 +97,7 @@
         .game-card:hover {
             transform: translateY(-10px);
             border-color: #e94560;
-            box-shadow: 0 20px 40px rgba(233, 69, 96, 0.2);
+            box-shadow: 0 20px 40px rgba(233, 69, 96, 0.15);
         }
 
         .game-icon {
@@ -106,13 +107,13 @@
         }
 
         .game-card h2 {
-            color: #fff;
+            color: #1a1a2e;
             font-size: 1.5rem;
             margin-bottom: 10px;
         }
 
         .game-card p {
-            color: #888;
+            color: #666;
             font-size: 0.95rem;
             line-height: 1.5;
             flex-grow: 1;
@@ -135,7 +136,7 @@
 
         footer {
             margin-top: 60px;
-            color: #555;
+            color: #888;
             font-size: 0.9rem;
         }
 
@@ -147,7 +148,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(26, 26, 46, 0.5);
             justify-content: center;
             align-items: center;
             z-index: 100;
@@ -156,16 +157,17 @@
         .modal.show { display: flex; }
 
         .modal-content {
-            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            background: #ffffff;
             padding: 30px;
             border-radius: 20px;
             text-align: center;
-            color: white;
+            color: #1a1a2e;
             border: 2px solid #e94560;
             max-width: 500px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(26, 26, 46, 0.25);
         }
 
         .modal-content h2 {
@@ -184,9 +186,9 @@
 
         .tab-btn {
             padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.1);
+            background: #f2f2f7;
             border: 2px solid transparent;
-            color: #fff;
+            color: #1a1a2e;
             border-radius: 8px;
             cursor: pointer;
             font-size: 0.9rem;
@@ -194,12 +196,12 @@
         }
 
         .tab-btn:hover {
-            background: rgba(233, 69, 96, 0.2);
+            background: rgba(233, 69, 96, 0.15);
         }
 
         .tab-btn.active {
             border-color: #e94560;
-            background: rgba(233, 69, 96, 0.3);
+            background: rgba(233, 69, 96, 0.15);
         }
 
         .level-tabs {
@@ -213,9 +215,9 @@
 
         .level-btn {
             padding: 6px 12px;
-            background: rgba(255, 255, 255, 0.1);
+            background: #f2f2f7;
             border: 1px solid transparent;
-            color: #aaa;
+            color: #666;
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.8rem;
@@ -223,13 +225,13 @@
         }
 
         .level-btn:hover {
-            background: rgba(78, 204, 163, 0.2);
+            background: rgba(78, 204, 163, 0.15);
         }
 
         .level-btn.active {
             border-color: #4ecca3;
-            background: rgba(78, 204, 163, 0.3);
-            color: #fff;
+            background: rgba(78, 204, 163, 0.2);
+            color: #1a1a2e;
         }
 
         .scoreboard-list {
@@ -239,7 +241,7 @@
 
         .scoreboard-list h3 {
             text-align: center;
-            color: #4ecca3;
+            color: #2ea88a;
             margin-bottom: 15px;
             font-size: 1rem;
         }
@@ -248,21 +250,21 @@
             display: flex;
             justify-content: space-between;
             padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.05);
+            background: #f2f2f7;
             margin-bottom: 5px;
             border-radius: 8px;
         }
 
         .score-entry .rank { color: #e94560; font-weight: bold; width: 30px; }
-        .score-entry .player-name { flex: 1; color: #fff; }
-        .score-entry .score-value { color: #4ecca3; font-weight: bold; }
+        .score-entry .player-name { flex: 1; color: #1a1a2e; }
+        .score-entry .score-value { color: #2ea88a; font-weight: bold; }
 
         .no-scores { color: #888; font-style: italic; padding: 20px; }
 
         .close-btn {
             margin-top: 20px;
             padding: 10px 30px;
-            background: rgba(255, 255, 255, 0.2);
+            background: #e94560;
             color: white;
             border: none;
             border-radius: 8px;
@@ -272,7 +274,7 @@
         }
 
         .close-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: #c73e54;
         }
 
         @media (max-width: 600px) {
@@ -357,7 +359,7 @@
     <div id="banner-ad" style="width:100%;max-width:728px;margin:20px auto;min-height:90px;"></div>
 
     <footer>
-        7 Fun Games &bull; <a href="privacy.html" style="color:#4ecca3;">Privacy Policy</a>
+        7 Fun Games &bull; <a href="privacy.html" style="color:#2ea88a;">Privacy Policy</a>
     </footer>
 
     <!-- Scoreboard Modal -->
